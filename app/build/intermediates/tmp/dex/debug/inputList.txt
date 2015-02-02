@@ -1,0 +1,5 @@
+D:\Ashioto2\app\build\intermediates\classes\debug
+D:\Ashioto2\app\build\intermediates\pre-dexed\debug\support-annotations-21.0.2-6a96c457f0ce3da677626b1c20cd68f9f936930c.jar
+D:\Ashioto2\app\build\intermediates\pre-dexed\debug\internal_impl-21.0.2-10855832ae85e6af147530876a4fe48221e36b52.jar
+D:\Ashioto2\app\build\intermediates\pre-dexed\debug\classes-ce5f8f22e7d36c7869fb3079497250210e9cba14.jar
+D:\Ashioto2\app\build\intermediates\pre-dexed\debug\classes-6d4429633c99d58f46ea55e097b001b4d25c7792.jar
