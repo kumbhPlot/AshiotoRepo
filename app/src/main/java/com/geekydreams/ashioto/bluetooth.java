@@ -32,6 +32,7 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -61,6 +62,7 @@ public class bluetooth extends ActionBarActivity {
     Integer inInt;
     String outFin;
     Integer outInt;
+    RelativeLayout denRelative;
 
     private boolean mIsBluetoothConnected = false;
 
@@ -91,6 +93,7 @@ public class bluetooth extends ActionBarActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.tooltooth);
         setSupportActionBar(toolbar);
         ActivityHelper.initialize(this);
+        denRelative = (RelativeLayout) findViewById(R.id.DenRelative);
 
         Intent intent = getIntent();
         Bundle b = intent.getExtras();
@@ -266,6 +269,7 @@ public class bluetooth extends ActionBarActivity {
                                 int endIn = strInput.lastIndexOf("#");
                                 int secIn = strInput.lastIndexOf("$");
                                 final String inFin = strInput.substring(endIn + 1, secIn);
+
                                 try {
                                     mTxtOut.setText(inFin);
                                 } catch (NullPointerException e){
@@ -279,6 +283,10 @@ public class bluetooth extends ActionBarActivity {
                             public void run() {
                                 //DENSITY
                                 Integer inInt = Integer.parseInt(inFin);
+                                if(inInt > 25 && inInt < 50)
+                                    denRelative.setBackgroundColor(getResources().getColor(R.color.warn));
+                                else if (inInt > 50)
+                                    denRelative.setBackgroundColor(getResources().getColor(R.color.over));
                                 Integer outInt = Integer.parseInt(outFin);
                                 int density = inInt - outInt;
                                 String densityFin = String.valueOf(density);

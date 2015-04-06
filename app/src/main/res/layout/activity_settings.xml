@@ -6,42 +6,48 @@
 
     <include
         layout="@layout/toolbar"
-        android:id="@+id/toolset"
-        />
-
-    <LinearLayout
-        android:orientation="vertical"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:weightSum="1">
-
+        android:id="@+id/toolset"/>
+    <RelativeLayout
+        android:layout_below="@id/toolset"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+        <RelativeLayout
+            android:id="@+id/delayRelative"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
         <TextView
+            android:padding="8dp"
+            android:background="@color/accent"
+            android:layout_centerHorizontal="true"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceLarge"
             android:text="Delay"
             android:id="@+id/textView"
-            android:layout_alignParentTop="true"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true"
             android:layout_marginTop="63dp"
             android:textSize="30dp"
             android:textColor="#000000" />
 
         <SeekBar
+            android:layout_below="@id/textView"
             android:theme="@style/AppTheme"
             android:progress="10"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:id="@+id/seekBar"/>
+        </RelativeLayout>
 
         <RelativeLayout
+            android:padding="8dp"
+            android:background="@color/accent"
+            android:layout_centerHorizontal="true"
+            android:id="@+id/paramNorm"
+            android:layout_below="@id/delayRelative"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:layout_margin="20dp">
         <LinearLayout
+            android:layout_centerHorizontal="true"
             android:orientation="horizontal"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content">
@@ -67,11 +73,17 @@
                 android:editable="true" />
 
         </LinearLayout>
-        </RelativeLayout>
+            </RelativeLayout>
 
         <RelativeLayout
+            android:padding="8dp"
+            android:background="@color/accent"
+            android:layout_centerHorizontal="true"
+            android:id="@+id/paramWarn"
+            android:layout_below="@id/paramNorm"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:layout_margin="20dp">
         <LinearLayout
             android:orientation="horizontal"
             android:layout_width="wrap_content"
@@ -100,6 +112,12 @@
         </RelativeLayout>
 
         <RelativeLayout
+            android:padding="8dp"
+            android:background="@color/accent"
+            android:layout_margin="20dp"
+            android:layout_centerHorizontal="true"
+            android:id="@+id/paramOver"
+            android:layout_below="@id/paramWarn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content">
         <LinearLayout
@@ -126,7 +144,41 @@
                 android:textSize="30sp" />
         </LinearLayout>
         </RelativeLayout>
-
-    </LinearLayout>
-
-</RelativeLayout>
+        <RelativeLayout
+            android:padding="8dp"
+            android:background="@color/accent"
+            android:layout_centerHorizontal="true"
+            android:id="@+id/areaPremises"
+            android:layout_below="@id/paramOver"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+            <TextView
+                android:id="@+id/areaText"
+                android:textColor="@color/bright_foreground_inverse_material_dark"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:textSize="30dp"
+                android:text="Area Of Premises"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"/>
+            <EditText
+                android:layout_marginLeft="20dp"
+                android:layout_alignParentLeft="true"
+                android:id="@+id/areaVal"
+                android:textSize="30sp"
+                android:layout_centerHorizontal="true"
+                android:layout_below="@id/areaText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="20"/>
+            <TextView
+                android:textColor="@color/bright_foreground_inverse_material_dark"
+                android:layout_below="@id/areaText"
+                android:textSize="30sp"
+                android:text="sq. metre"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_toRightOf="@+id/areaVal"/>
+            </RelativeLayout>
+        </RelativeLayout>
+    </RelativeLayout>
