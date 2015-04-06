@@ -180,7 +180,7 @@ public class bluetooth extends ActionBarActivity {
                     Toast.makeText(bluetooth.this, "Disconnected", Toast.LENGTH_SHORT).show();
                 }
                 while (!bStop) {    //due to this programme run infinitely
-                    final byte[][] buffer = {new byte[512]};//This is the buffer size, i.e. the amount we read in one run
+                    final byte[][] buffer = {new byte[64]};//This is the buffer size, i.e. the amount we read in one run
                     if (inputStream.available() > 0) {
                         int stringStream = inputStream.read(buffer[0]);
                         int i;
@@ -292,7 +292,7 @@ public class bluetooth extends ActionBarActivity {
                     } else if (mBTSocket.equals(null)) {
                         Toast.makeText(bluetooth.this, "Disconnected", Toast.LENGTH_SHORT).show();
                     }
-                    Thread.sleep(10);
+                    Thread.sleep(50);
                 }
             } catch (IOException e) {
                 // TODO Auto-generated catch block
