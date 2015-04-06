@@ -1248,14 +1248,12 @@ containing a value of this type.
         public static final int abc_text_size_title_material_toolbar=0x7f070024;
         public static final int activity_horizontal_margin=0x7f070025;
         public static final int activity_vertical_margin=0x7f070026;
-        public static final int bluetooth_spp_padding=0x7f070027;
-        public static final int bluetooth_spp_text_size=0x7f070028;
-        public static final int dialog_fixed_height_major=0x7f070029;
-        public static final int dialog_fixed_height_minor=0x7f07002a;
-        public static final int dialog_fixed_width_major=0x7f07002b;
-        public static final int dialog_fixed_width_minor=0x7f07002c;
-        public static final int disabled_alpha_material_dark=0x7f07002d;
-        public static final int disabled_alpha_material_light=0x7f07002e;
+        public static final int dialog_fixed_height_major=0x7f070027;
+        public static final int dialog_fixed_height_minor=0x7f070028;
+        public static final int dialog_fixed_width_major=0x7f070029;
+        public static final int dialog_fixed_width_minor=0x7f07002a;
+        public static final int disabled_alpha_material_dark=0x7f07002b;
+        public static final int disabled_alpha_material_light=0x7f07002c;
     }
     public static final class drawable {
         public static final int abc_ab_share_pack_holo_dark=0x7f020000;
@@ -1333,12 +1331,11 @@ containing a value of this type.
         public static final int action_mode_bar=0x7f08002e;
         public static final int action_mode_bar_stub=0x7f08002d;
         public static final int action_mode_close_button=0x7f080020;
-        public static final int action_settings=0x7f08005e;
+        public static final int action_settings=0x7f08005c;
         public static final int activity_chooser_view_content=0x7f080021;
         public static final int always=0x7f080016;
         public static final int beginning=0x7f080013;
         public static final int btnSearch=0x7f080059;
-        public static final int button_scan=0x7f08005b;
         public static final int checkbox=0x7f080029;
         public static final int collapseActionView=0x7f080017;
         public static final int decor_content_parent=0x7f08002f;
@@ -1358,12 +1355,11 @@ containing a value of this type.
         public static final int ifRoom=0x7f080018;
         public static final int image=0x7f080023;
         public static final int listMode=0x7f080009;
-        public static final int list_devices=0x7f08005a;
         public static final int list_item=0x7f080025;
-        public static final int lstContent=0x7f08005c;
+        public static final int lstContent=0x7f08005a;
         public static final int lstDevices=0x7f080058;
         public static final int middle=0x7f080015;
-        public static final int my_awesome_toolbar=0x7f08005d;
+        public static final int my_awesome_toolbar=0x7f08005b;
         public static final int never=0x7f080019;
         public static final int newBut=0x7f08004b;
         public static final int none=0x7f08000e;
@@ -1441,11 +1437,9 @@ containing a value of this type.
         public static final int activity_library_start=0x7f030019;
         public static final int activity_settings=0x7f03001a;
         public static final int activity_start=0x7f03001b;
-        public static final int device_list=0x7f03001c;
-        public static final int device_name=0x7f03001d;
-        public static final int list_item=0x7f03001e;
-        public static final int support_simple_spinner_dropdown_item=0x7f03001f;
-        public static final int toolbar=0x7f030020;
+        public static final int list_item=0x7f03001c;
+        public static final int support_simple_spinner_dropdown_item=0x7f03001d;
+        public static final int toolbar=0x7f03001e;
     }
     public static final class menu {
         public static final int bluetooth=0x7f0c0000;

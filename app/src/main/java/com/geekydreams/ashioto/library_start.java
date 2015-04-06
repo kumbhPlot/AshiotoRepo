@@ -7,7 +7,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
-import app.akexorcist.bluetotohspp.library.BluetoothSPP;
 
 
 public class library_start extends ActionBarActivity {
@@ -16,10 +15,7 @@ public class library_start extends ActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_library_start);
-        BluetoothSPP bt = new BluetoothSPP(getApplicationContext());
-        if(!bt.isBluetoothAvailable()){
-            bt.enable();
-        }
+
     }
 
 

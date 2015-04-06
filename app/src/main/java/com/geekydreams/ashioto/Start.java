@@ -47,12 +47,11 @@ public class Start extends ActionBarActivity {
     // (http://developer.android.com/reference/android/bluetooth/BluetoothDevice.html#createInsecureRfcommSocketToServiceRecord%28java.util.UUID%29)
 
     private int mBufferSize = 50000; //Default
-    public static final String DEVICE_EXTRA = "com.blueserial.SOCKET";
-    public static final String DEVICE_UUID = "com.blueserial.uuid";
-    private static final String DEVICE_LIST = "com.blueserial.devicelist";
-    private static final String DEVICE_LIST_SELECTED = "com.blueserial.devicelistselected";
-    public static final String BUFFER_SIZE = "com.blueserial.buffersize";
-    private static final String TAG = "BlueTest5-Homescreen";
+    public static final String DEVICE_EXTRA = "com.geekydreams.ashioto.SOCKET";
+    public static final String DEVICE_UUID = "com.geekydreams.ashioto.uuid";
+    private static final String DEVICE_LIST = "com.geekydreams.ashioto.devicelist";
+    private static final String DEVICE_LIST_SELECTED = "com.geekydreams.ashioto.devicelistselected";
+    public static final String BUFFER_SIZE = "com.geekydreams.ashioto.buffersize";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,7 +61,7 @@ public class Start extends ActionBarActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolstart);
         toolbar.setTitleTextColor(getResources().getColor(R.color.primary_light));
         setSupportActionBar(toolbar);
-        ActivityHelper.initialize(this); //This is to ensure that the rotation persists across activities and not just this one
+       // ActivityHelper.initialize(this); //This is to ensure that the rotation persists across activities and not just this one
         Log.d(TAG, "Created");
 
         mBtnSearch = (Button) findViewById(R.id.btnSearch);

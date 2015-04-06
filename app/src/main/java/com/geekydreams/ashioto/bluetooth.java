@@ -38,7 +38,6 @@ import android.widget.Toast;
 
 public class bluetooth extends ActionBarActivity {
 
-    private static final String TAG = "BlueTest5-bluetooth";
     private int mMaxChars = 50000;//Default
     private UUID mDeviceUUID;
     private BluetoothSocket mBTSocket;
@@ -58,6 +57,10 @@ public class bluetooth extends ActionBarActivity {
     //  private ScrollView scrollView;
     private CheckBox chkScroll;
     private CheckBox chkReceiveText;
+    private String inFin;
+    Integer inInt;
+    String outFin;
+    Integer outInt;
 
     private boolean mIsBluetoothConnected = false;
 
@@ -95,7 +98,6 @@ public class bluetooth extends ActionBarActivity {
         mDeviceUUID = UUID.fromString(b.getString(Start.DEVICE_UUID));
         mMaxChars = b.getInt(Start.BUFFER_SIZE);
 
-        Log.d(TAG, "Ready");
 
         //mBtnDisconnect = (Button) findViewById(R.id.btnDisconnect);
         //mBtnSend = (Button) findViewById(R.id.btnSend);
@@ -177,8 +179,8 @@ public class bluetooth extends ActionBarActivity {
                 if (inputStream == null) {
                     Toast.makeText(bluetooth.this, "Disconnected", Toast.LENGTH_SHORT).show();
                 }
-                while (!bStop) {
-                    final byte[][] buffer = {new byte[512]};
+                while (!bStop) {    //due to this programme run infinitely
+                    final byte[][] buffer = {new byte[512]};//This is the buffer size, i.e. the amount we read in one run
                     if (inputStream.available() > 0) {
                         int stringStream = inputStream.read(buffer[0]);
                         int i;
@@ -200,10 +202,7 @@ public class bluetooth extends ActionBarActivity {
                                 //replace #with $
 
 
-                                //IN
-                                int endIn = strInput.lastIndexOf("#");
-                                int secIn = strInput.lastIndexOf("$");
-                                final String inFin = strInput.substring(endIn+1, secIn);
+
 
                                 //OUT
                                 int endOut = strInput.lastIndexOf("%");
@@ -211,20 +210,25 @@ public class bluetooth extends ActionBarActivity {
                                 final String outFin = strInput.substring(endOut + 1, secOut);
 
 
-                               /* Integer in = Integer.parseInt(inFin);
-                                Integer out = Integer.parseInt(outFin);
-                                Integer density = in + out;
-                                String densityFin = String.valueOf(density);*/
-                                // String strTemp = strTest.replace(strTest.charAt(endlastoccurrence),'$');
+                                //String inString = String.valueOf(inInt);
+                                //String outString = String.valueOf(outInt);
+                                /*String strTemp = strTest.replace(strTest.charAt(endlastoccurrence),'$');
 
-                                //final String strEmpty="";
-                                //int iLastindex=strTest.lastIndexOf('$');
-                                //final String strTest2=strTest.substring(iLastindex, strTest.length());
-                                //strInput=strInput.replace("#", "$");
-                                mTxtOut.append(inFin);
-                                mTxtReceive.append(outFin);
+                                final String strEmpty="";
+                                int iLastindex=strTest.lastIndexOf('$');
+                                final String strTest2=strTest.substring(iLastindex, strTest.length());
+                                strInput=strInput.replace("#", "$");*/
+                                try {
+                                    //mTxtOut.setText(inString);
+                                    mTxtReceive.setText(outFin);
+                                } catch (NullPointerException e){
+                                    //mTxtOut.setText("Data Not Available");
+                                    mTxtReceive.setText("Data Not Available");
+//                                  mTxtdensity.setText("Data Not Available");
+                                    e.printStackTrace();
+                                }
 
-                               /* if (densityFin != null) {
+                                /*if (densityFin != null) {
                                     mTxtdensity.append(densityFin);
                                 } else {
                                     mTxtdensity.setText("Data Not Available");
@@ -233,6 +237,7 @@ public class bluetooth extends ActionBarActivity {
                                 //Uncomment below for testing
                                 //mTxtReceive.append("\n");
                                 //mTxtReceive.append("Chars: " + strInput.length() + " Lines: " + mTxtReceive.getLineCount() +"\n");
+/*
                                     int outlength = mTxtOut.getEditableText().length();
                                     if (outlength >= outFin.length()){
                                         mTxtOut.getEditableText().delete(0, outlength - outFin.length());
@@ -242,6 +247,7 @@ public class bluetooth extends ActionBarActivity {
                                     if(txtLength >= inFin.length()){
                                         mTxtReceive.getEditableText().delete(0, txtLength - inFin.length() );
                                     }
+*/
 
                                   /*  if (chkScroll.isChecked()) { // Scroll only if this is checked
                                         scrollView.post(new Runnable() { // Snippet from http://stackoverflow.com/a/4612082/1287554
@@ -251,6 +257,36 @@ public class bluetooth extends ActionBarActivity {
                                             }
                                         });
                                     }*/
+                            }
+                        });
+                        mTxtOut.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                //IN
+                                int endIn = strInput.lastIndexOf("#");
+                                int secIn = strInput.lastIndexOf("$");
+                                final String inFin = strInput.substring(endIn + 1, secIn);
+                                try {
+                                    mTxtOut.setText(inFin);
+                                } catch (NullPointerException e){
+                                    mTxtOut.setText("Data not available");
+                                    e.printStackTrace();
+                                }
+                            }
+                        });
+                        mTxtdensity.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                //DENSITY
+                                Integer inInt = Integer.parseInt(inFin);
+                                Integer outInt = Integer.parseInt(outFin);
+                                int density = inInt - outInt;
+                                String densityFin = String.valueOf(density);
+                                try {
+                                    mTxtdensity.setText(densityFin);
+                                } catch (NullPointerException e){
+                                    e.printStackTrace();
+                                }
                             }
                         });
                     } else if (mBTSocket.equals(null)) {
@@ -321,7 +357,6 @@ public class bluetooth extends ActionBarActivity {
         if (mBTSocket != null && mIsBluetoothConnected) {
             new DisConnectBT().execute();
         }
-        Log.d(TAG, "Paused");
         super.onPause();
     }
 
@@ -330,13 +365,11 @@ public class bluetooth extends ActionBarActivity {
         if (mBTSocket == null || !mIsBluetoothConnected) {
             new ConnectBT().execute();
         }
-        Log.d(TAG, "Resumed");
         super.onResume();
     }
 
     @Override
     protected void onStop() {
-        Log.d(TAG, "Stopped");
         super.onStop();
     }
 
