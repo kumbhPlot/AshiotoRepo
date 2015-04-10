@@ -19,6 +19,7 @@ import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
@@ -47,6 +48,7 @@ public class bluetooth extends ActionBarActivity {
     private boolean mIsUserInitiatedDisconnect = false;
 
     // All controls here
+    private TextView areaHint;
     private TextView mTxtReceive;
     private TextView mTxtOut;
     private TextView mTxtdensity;
@@ -63,6 +65,9 @@ public class bluetooth extends ActionBarActivity {
     String outFin;
     Integer outInt;
     RelativeLayout denRelative;
+    RelativeLayout inRelative;
+    RelativeLayout outRelative;
+    public String areaPref = "areaPref";
 
     private boolean mIsBluetoothConnected = false;
 
@@ -86,6 +91,7 @@ public class bluetooth extends ActionBarActivity {
         ;
     };
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -93,7 +99,15 @@ public class bluetooth extends ActionBarActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.tooltooth);
         setSupportActionBar(toolbar);
         ActivityHelper.initialize(this);
+        inRelative = (RelativeLayout) findViewById(R.id.InRelative);
+        outRelative = (RelativeLayout) findViewById(R.id.OutRelative);
         denRelative = (RelativeLayout) findViewById(R.id.DenRelative);
+        SharedPreferences getArea = getSharedPreferences(areaPref, 0);
+        float area = getArea.getFloat(areaPref, 0);
+        String areaString = String.valueOf(area);
+        areaHint = (TextView) findViewById(R.id.areaHint);
+
+        areaHint.setText(areaString);
 
         Intent intent = getIntent();
         Bundle b = intent.getExtras();
@@ -101,6 +115,10 @@ public class bluetooth extends ActionBarActivity {
         mDeviceUUID = UUID.fromString(b.getString(Start.DEVICE_UUID));
         mMaxChars = b.getInt(Start.BUFFER_SIZE);
 
+
+
+        //GEt Area
+        //SharedPreferences
 
         //mBtnDisconnect = (Button) findViewById(R.id.btnDisconnect);
         //mBtnSend = (Button) findViewById(R.id.btnSend);
