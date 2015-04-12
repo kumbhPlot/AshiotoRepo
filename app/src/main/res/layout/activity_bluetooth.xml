@@ -18,6 +18,8 @@
             android:layout_width="fill_parent"
             android:layout_height="fill_parent">
 
+
+
             <RelativeLayout
                 android:id="@+id/InRelative"
                 android:layout_width="fill_parent"
@@ -33,7 +35,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_centerHorizontal="true"
-                    android:text="Entry 1"
+                    android:text="IN"
                     android:textAppearance="?android:attr/textAppearanceLarge"
                     android:textColor="@color/primary_light"
                     android:textSize="30sp"
@@ -67,7 +69,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_centerHorizontal="true"
-                    android:text="Entry 2"
+                    android:text="OUT"
                     android:textAppearance="?android:attr/textAppearanceLarge"
                     android:textColor="@color/primary_light"
                     android:textSize="30sp" />
@@ -107,7 +109,7 @@
                     android:textSize="30sp" />
 
                 <TextView
-                    android:id="@+id/TextView3"
+                    android:id="@+id/densityView"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_below="@id/TextView1"

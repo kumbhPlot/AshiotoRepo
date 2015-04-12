@@ -7,8 +7,10 @@
     <include
         layout="@layout/toolbar"
         android:id="@+id/toolset"/>
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
     <RelativeLayout
-        android:layout_below="@id/toolset"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content">
         <RelativeLayout
@@ -62,6 +64,7 @@
                 android:textColor="#000000"/>
 
             <EditText
+                android:inputType="numberDecimal"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textAppearance="?android:attr/textAppearanceLarge"
@@ -100,6 +103,7 @@
                 android:textSize="30dp" />
 
             <EditText
+                android:inputType="numberDecimal"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:id="@+id/editText"
@@ -135,6 +139,7 @@
                 android:textSize="30dp" />
 
             <EditText
+                android:inputType="numberDecimal"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:id="@+id/editText2"
@@ -162,6 +167,8 @@
                 android:layout_height="wrap_content"
                 android:layout_centerHorizontal="true"/>
             <EditText
+                android:focusable="true"
+                android:inputType="numberDecimal"
                 android:layout_marginLeft="20dp"
                 android:layout_alignParentLeft="true"
                 android:id="@+id/areaVal"
@@ -181,4 +188,5 @@
                 android:layout_toRightOf="@+id/areaVal"/>
             </RelativeLayout>
         </RelativeLayout>
+    </ScrollView>
     </RelativeLayout>

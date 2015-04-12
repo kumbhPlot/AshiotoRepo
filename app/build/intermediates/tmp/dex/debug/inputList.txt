@@ -1,5 +1,5 @@
 /home/geek/Ashioto2/app/build/intermediates/classes/debug
-/home/geek/Ashioto2/app/build/intermediates/pre-dexed/debug/support-annotations-21.0.2-1698f906c2c334aba063110e0b34530cfec3a1d4.jar
-/home/geek/Ashioto2/app/build/intermediates/pre-dexed/debug/internal_impl-21.0.2-99aef8a944fefee68d8a4670397e52b243939168.jar
-/home/geek/Ashioto2/app/build/intermediates/pre-dexed/debug/classes-de60e1759804b36510468d24c4f16ec1481f75da.jar
-/home/geek/Ashioto2/app/build/intermediates/pre-dexed/debug/classes-12e1ee5eaa668b22585687746c910ae5292c6728.jar
+/home/geek/Ashioto2/app/build/intermediates/pre-dexed/debug/support-annotations-22.0.0-3a0144b0f84cd6f96d22061bcd16e20549ac2c29.jar
+/home/geek/Ashioto2/app/build/intermediates/pre-dexed/debug/internal_impl-22.0.0-b450a524b99d083cdc5f55ff749633778c8701bb.jar
+/home/geek/Ashioto2/app/build/intermediates/pre-dexed/debug/classes-d1c22295d151a684a20d5839d64e58ba1ecc30e0.jar
+/home/geek/Ashioto2/app/build/intermediates/pre-dexed/debug/classes-aa7889322b61149d03149d35cc15fddcca15e0fe.jar

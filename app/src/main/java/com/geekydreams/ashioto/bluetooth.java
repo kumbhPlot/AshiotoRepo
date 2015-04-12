@@ -102,12 +102,6 @@ public class bluetooth extends ActionBarActivity {
         inRelative = (RelativeLayout) findViewById(R.id.InRelative);
         outRelative = (RelativeLayout) findViewById(R.id.OutRelative);
         denRelative = (RelativeLayout) findViewById(R.id.DenRelative);
-        SharedPreferences getArea = getSharedPreferences(areaPref, 0);
-        float area = getArea.getFloat(areaPref, 0);
-        String areaString = String.valueOf(area);
-        areaHint = (TextView) findViewById(R.id.areaHint);
-
-        areaHint.setText(areaString);
 
         Intent intent = getIntent();
         Bundle b = intent.getExtras();
@@ -125,7 +119,7 @@ public class bluetooth extends ActionBarActivity {
         //mBtnClear = (Button) findViewById(R.id.btnClear);
         mTxtReceive = (TextView) findViewById(R.id.txtReceive);
         mTxtOut = (TextView) findViewById(R.id.txtOut);
-        mTxtdensity = (TextView) findViewById(R.id.textView3);
+        mTxtdensity = (TextView) findViewById(R.id.densityView);
 
         //mEditSend = (EditText) findViewById(R.id.editSend);
 //        chkScroll = (CheckBox) findViewById(R.id.chkScroll);
@@ -133,7 +127,7 @@ public class bluetooth extends ActionBarActivity {
 //        mBtnClearInput = (Button) findViewById(R.id.btnClearInput);
 
 
-        
+
 
         /*mBtnDisconnect.setOnClickListener(new OnClickListener() {
 
@@ -201,53 +195,70 @@ public class bluetooth extends ActionBarActivity {
                     Toast.makeText(bluetooth.this, "Disconnected", Toast.LENGTH_SHORT).show();
                 }
                 while (!bStop) {    //due to this programme run infinitely
-                    final byte[][] buffer = {new byte[64]};//This is the buffer size, i.e. the amount we read in one run
+                    final byte[] buffer = new byte[2048];//This is the buffer size, i.e. the amount we read in one run
                     if (inputStream.available() > 0) {
-                        int stringStream = inputStream.read(buffer[0]);
+                        int stringStream = inputStream.read(buffer);
                         int i;
                         /*
 						 * This is needed because new String(buffer) is taking the entire buffer i.e. 256 chars on Android 2.3.4 http://stackoverflow.com/a/8843462/1287554
 						 */
-                        for (i = 0; i <= buffer[0].length && buffer[0][i] != 0; i++) {
-                            strInput = new String(buffer[0], 0, i);
+                        for (i = 0; i <= buffer.length && buffer[i] != 0; i++) {
+                            strInput = new String(buffer, 0, i);
                         }
 
 						/*
 						 * If checked then receive text, better design would probably be to stop thread if unchecked and free resources, but this is a quick fix
 						 */
 
+                        if (strInput.startsWith("#")) {
 
-                        mTxtReceive.post(new Runnable() {
-                            @Override
-                            public void run() {
-                                //replace #with $
-
-
-
-
-                                //OUT
-                                int endOut = strInput.lastIndexOf("%");
-                                int secOut = strInput.lastIndexOf("^");
-                                final String outFin = strInput.substring(endOut + 1, secOut);
+                                mTxtReceive.post(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        //replace #with $
 
 
-                                //String inString = String.valueOf(inInt);
-                                //String outString = String.valueOf(outInt);
+                                        //OUT
+                                        int endOut = strInput.lastIndexOf("%");
+                                        int secOut = strInput.lastIndexOf("^");
+                                        final String outFin = strInput.substring(endOut + 1, secOut);
+                                        //IN
+                                        int endIn = strInput.lastIndexOf("#");
+                                        int secIn = strInput.lastIndexOf("$");
+                                        final String inFin = strInput.substring(endIn + 1, secIn);
+                                        //DENSITY
+                                        Float inInt = Float.parseFloat(inFin);
+                                        Float outInt = Float.parseFloat(outFin);
+                                        float pplInInt = inInt - outInt;
+                                        SharedPreferences getArea = getSharedPreferences(areaPref, 0);
+                                        float area = getArea.getFloat(areaPref, 0);
+                                        float densityFin = pplInInt / area;
+                                        String denstityStr = String.valueOf(densityFin);
+                                        try {
+                                            mTxtdensity.setText(denstityStr);
+                                        } catch (NullPointerException e) {
+                                            e.printStackTrace();
+//                                        mTxtdensity.setText("Data Not Available");
+                                        }
+
+
+                                        //String inString = String.valueOf(inInt);
+                                        //String outString = String.valueOf(outInt);
                                 /*String strTemp = strTest.replace(strTest.charAt(endlastoccurrence),'$');
 
                                 final String strEmpty="";
                                 int iLastindex=strTest.lastIndexOf('$');
                                 final String strTest2=strTest.substring(iLastindex, strTest.length());
                                 strInput=strInput.replace("#", "$");*/
-                                try {
-                                    //mTxtOut.setText(inString);
-                                    mTxtReceive.setText(outFin);
-                                } catch (NullPointerException e){
-                                    //mTxtOut.setText("Data Not Available");
-                                    mTxtReceive.setText("Data Not Available");
+                                        try {
+                                            //mTxtOut.setText(inString);
+                                            mTxtReceive.setText(outFin);
+                                        } catch (NullPointerException e) {
+                                            //mTxtOut.setText("Data Not Available");
+                                            mTxtReceive.setText("Data Not Available");
 //                                  mTxtdensity.setText("Data Not Available");
-                                    e.printStackTrace();
-                                }
+                                            e.printStackTrace();
+                                        }
 
                                 /*if (densityFin != null) {
                                     mTxtdensity.append(densityFin);
@@ -255,9 +266,9 @@ public class bluetooth extends ActionBarActivity {
                                     mTxtdensity.setText("Data Not Available");
                                 }*/
 
-                                //Uncomment below for testing
-                                //mTxtReceive.append("\n");
-                                //mTxtReceive.append("Chars: " + strInput.length() + " Lines: " + mTxtReceive.getLineCount() +"\n");
+                                        //Uncomment below for testing
+                                        //mTxtReceive.append("\n");
+                                        //mTxtReceive.append("Chars: " + strInput.length() + " Lines: " + mTxtReceive.getLineCount() +"\n");
 /*
                                     int outlength = mTxtOut.getEditableText().length();
                                     if (outlength >= outFin.length()){
@@ -278,47 +289,30 @@ public class bluetooth extends ActionBarActivity {
                                             }
                                         });
                                     }*/
-                            }
-                        });
-                        mTxtOut.post(new Runnable() {
-                            @Override
-                            public void run() {
-                                //IN
-                                int endIn = strInput.lastIndexOf("#");
-                                int secIn = strInput.lastIndexOf("$");
-                                final String inFin = strInput.substring(endIn + 1, secIn);
+                                    }
+                                });
+                                mTxtOut.post(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        //IN
+                                        int endIn = strInput.lastIndexOf("#");
+                                        int secIn = strInput.lastIndexOf("$");
+                                        final String inFin = strInput.substring(endIn + 1, secIn);
 
-                                try {
-                                    mTxtOut.setText(inFin);
-                                } catch (NullPointerException e){
-                                    mTxtOut.setText("Data not available");
-                                    e.printStackTrace();
-                                }
-                            }
-                        });
-                        mTxtdensity.post(new Runnable() {
-                            @Override
-                            public void run() {
-                                //DENSITY
-                                Integer inInt = Integer.parseInt(inFin);
-                                if(inInt > 25 && inInt < 50)
-                                    denRelative.setBackgroundColor(getResources().getColor(R.color.warn));
-                                else if (inInt > 50)
-                                    denRelative.setBackgroundColor(getResources().getColor(R.color.over));
-                                Integer outInt = Integer.parseInt(outFin);
-                                int density = inInt - outInt;
-                                String densityFin = String.valueOf(density);
-                                try {
-                                    mTxtdensity.setText(densityFin);
-                                } catch (NullPointerException e){
-                                    e.printStackTrace();
-                                }
-                            }
-                        });
+                                        try {
+                                            mTxtOut.setText(inFin);
+                                        } catch (NullPointerException e) {
+                                            mTxtOut.setText("Data not available");
+                                            e.printStackTrace();
+                                        }
+                                    }
+                                });
+
+                        }
                     } else if (mBTSocket.equals(null)) {
                         Toast.makeText(bluetooth.this, "Disconnected", Toast.LENGTH_SHORT).show();
                     }
-                    Thread.sleep(50);
+                    Thread.sleep(800);
                 }
             } catch (IOException e) {
                 // TODO Auto-generated catch block

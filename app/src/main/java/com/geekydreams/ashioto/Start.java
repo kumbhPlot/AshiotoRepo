@@ -53,6 +53,9 @@ public class Start extends ActionBarActivity {
     private static final String DEVICE_LIST_SELECTED = "com.geekydreams.ashioto.devicelistselected";
     public static final String BUFFER_SIZE = "com.geekydreams.ashioto.buffersize";
 
+    TextView areaHint;
+    public String areaPref = "areaPref";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -62,8 +65,12 @@ public class Start extends ActionBarActivity {
         toolbar.setTitleTextColor(getResources().getColor(R.color.primary_light));
         setSupportActionBar(toolbar);
        // ActivityHelper.initialize(this); //This is to ensure that the rotation persists across activities and not just this one
-        Log.d(TAG, "Created");
+        SharedPreferences getArea = getSharedPreferences(areaPref, 0);
+        float area = getArea.getFloat(areaPref, 0);
+        String areaString = String.valueOf(area);
+        areaHint = (TextView) findViewById(R.id.areaHint);
 
+        areaHint.setText(areaString);
         mBtnSearch = (Button) findViewById(R.id.btnSearch);
 
         mLstDevices = (ListView) findViewById(R.id.lstDevices);
@@ -164,12 +171,10 @@ public class Start extends ActionBarActivity {
                 SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
                 String uuid = prefs.getString("prefUuid", "Null");
                 mDeviceUUID = UUID.fromString(uuid);
-                Log.d(TAG, "UUID: " + uuid);
                 String bufSize = prefs.getString("prefTextBuffer", "Null");
                 mBufferSize = Integer.parseInt(bufSize);
 
                 String orientation = prefs.getString("prefOrientation", "Null");
-                Log.d(TAG, "Orientation: " + orientation);
                 if (orientation.equals("Landscape")) {
                     setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
                 } else if (orientation.equals("Portrait")) {
