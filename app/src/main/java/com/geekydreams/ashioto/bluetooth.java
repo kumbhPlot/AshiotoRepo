@@ -10,6 +10,10 @@ import java.lang.reflect.Method;
 import java.util.UUID;
 
 import com.geekydreams.ashioto.R;
+import com.jcraft.jsch.Channel;
+import com.jcraft.jsch.ChannelSftp;
+import com.jcraft.jsch.JSch;
+import com.jcraft.jsch.Session;
 
 import android.R.integer;
 import android.annotation.SuppressLint;
@@ -40,6 +44,11 @@ import android.widget.Toast;
 
 public class bluetooth extends ActionBarActivity {
 
+    String pubKeyFile = "/home/pi/.ssh/id_rsa";
+    String passPhrase = "scientific";
+    String host = "192.168.1.11", user = "pi";
+    String khfile = "/home/pi/.ssh/known_hosts";
+
     private int mMaxChars = 50000;//Default
     private UUID mDeviceUUID;
     private BluetoothSocket mBTSocket;
@@ -57,10 +66,10 @@ public class bluetooth extends ActionBarActivity {
     private Button mBtnSend;
     private Button mBtnClear;
     private Button mBtnClearInput;
+    Button syncBtn;
     //  private ScrollView scrollView;
     private CheckBox chkScroll;
     private CheckBox chkReceiveText;
-    private String inFin;
     Integer inInt;
     String outFin;
     Integer outInt;
@@ -68,13 +77,18 @@ public class bluetooth extends ActionBarActivity {
     RelativeLayout inRelative;
     RelativeLayout outRelative;
     public String areaPref = "areaPref";
-
+    String inFin;
+    String denstityStr;
     private boolean mIsBluetoothConnected = false;
 
     private BluetoothDevice mDevice;
 
     private ProgressDialog progressDialog;
     String strInput;
+    JSch jsch = null;
+    Session session = null;
+    Channel channel = null;
+    ChannelSftp c = null;
 
     Handler mHandler = new Handler() {
         public void handleMessage(android.os.Message msg) {
@@ -108,6 +122,21 @@ public class bluetooth extends ActionBarActivity {
         mDevice = b.getParcelable(Start.DEVICE_EXTRA);
         mDeviceUUID = UUID.fromString(b.getString(Start.DEVICE_UUID));
         mMaxChars = b.getInt(Start.BUFFER_SIZE);
+        syncBtn = (Button) findViewById(R.id.syncBtn);
+
+        syncBtn.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                try{
+                    jsch = new JSch();
+                    session = jsch.getSession(user, host, 22);
+                    session.setPassword(passPhrase);
+                    jsch.setKnownHosts(khfile);
+                    jsch.addIdentity(pubKeyFile);
+                    session.connect();
+                } catch (Exception e) { 	e.printStackTrace();	}
+            }
+        });
 
 
 
@@ -221,7 +250,7 @@ public class bluetooth extends ActionBarActivity {
                                         //OUT
                                         int endOut = strInput.lastIndexOf("%");
                                         int secOut = strInput.lastIndexOf("^");
-                                        final String outFin = strInput.substring(endOut + 1, secOut);
+                                        outFin = strInput.substring(endOut + 1, secOut);
                                         //IN
                                         int endIn = strInput.lastIndexOf("#");
                                         int secIn = strInput.lastIndexOf("$");
@@ -233,7 +262,7 @@ public class bluetooth extends ActionBarActivity {
                                         SharedPreferences getArea = getSharedPreferences(areaPref, 0);
                                         float area = getArea.getFloat(areaPref, 0);
                                         float densityFin = pplInInt / area;
-                                        String denstityStr = String.valueOf(densityFin);
+                                        denstityStr = String.valueOf(densityFin);
                                         try {
                                             mTxtdensity.setText(denstityStr);
                                         } catch (NullPointerException e) {
@@ -297,7 +326,7 @@ public class bluetooth extends ActionBarActivity {
                                         //IN
                                         int endIn = strInput.lastIndexOf("#");
                                         int secIn = strInput.lastIndexOf("$");
-                                        final String inFin = strInput.substring(endIn + 1, secIn);
+                                        inFin = strInput.substring(endIn + 1, secIn);
 
                                         try {
                                             mTxtOut.setText(inFin);

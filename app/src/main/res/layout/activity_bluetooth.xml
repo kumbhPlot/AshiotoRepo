@@ -118,6 +118,13 @@
                     android:text="DENSITY"
                     android:textSize="28sp" />
             </RelativeLayout>
+            <Button
+                android:id="@+id/syncBtn"
+                android:text="Sync"
+                android:layout_centerHorizontal="true"
+                android:layout_below="@id/DenRelative"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
         </RelativeLayout>
     </ScrollView>
 </RelativeLayout>
