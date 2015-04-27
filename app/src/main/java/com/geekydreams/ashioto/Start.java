@@ -67,9 +67,7 @@ public class Start extends ActionBarActivity {
         SharedPreferences getArea = getSharedPreferences(areaPref, 0);
         float area = getArea.getFloat(areaPref, 0);
         String areaString = String.valueOf(area);
-        areaHint = (TextView) findViewById(R.id.areaHint);
 
-        areaHint.setText(areaString);
         mBtnSearch = (Button) findViewById(R.id.btnSearch);
 
         mLstDevices = (ListView) findViewById(R.id.lstDevices);

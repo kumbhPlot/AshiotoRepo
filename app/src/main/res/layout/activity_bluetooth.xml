@@ -20,45 +20,12 @@
 
 
 
-            <RelativeLayout
-                android:id="@+id/InRelative"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:layout_centerHorizontal="true"
-                android:layout_marginTop="20dp"
-                android:background="@drawable/counts"
-                android:padding="20dp">
 
-
-                <TextView
-                    android:id="@+id/TextView"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_centerHorizontal="true"
-                    android:text="IN"
-                    android:textAppearance="?android:attr/textAppearanceLarge"
-                    android:textColor="@color/primary_light"
-                    android:textSize="30sp"
-                    android:typeface="monospace" />
-
-                <TextView
-                    android:id="@+id/txtReceive"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_below="@id/TextView"
-                    android:layout_centerHorizontal="true"
-                    android:layout_centerInParent="true"
-                    android:singleLine="true"
-                    android:text="IN"
-                    android:textSize="28sp"
-                    android:typeface="monospace" />
-            </RelativeLayout>
 
             <RelativeLayout
                 android:id="@+id/OutRelative"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_below="@id/InRelative"
                 android:layout_centerHorizontal="true"
                 android:layout_marginTop="10dp"
                 android:background="@drawable/counts"
@@ -69,7 +36,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_centerHorizontal="true"
-                    android:text="OUT"
+                    android:text="IN"
                     android:textAppearance="?android:attr/textAppearanceLarge"
                     android:textColor="@color/primary_light"
                     android:textSize="30sp" />
@@ -83,6 +50,41 @@
                     android:layout_centerInParent="true"
                     android:clickable="false"
                     android:singleLine="true"
+                    android:text="IN"
+                    android:textSize="28sp"
+                    android:typeface="monospace" />
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:layout_below="@id/OutRelative"
+                android:id="@+id/InRelative"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="20dp"
+                android:background  ="@drawable/counts"
+                android:padding="20dp">
+
+
+                <TextView
+                    android:id="@+id/TextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerHorizontal="true"
+                    android:text="OUT"
+                    android:textAppearance="?android:attr/textAppearanceLarge"
+                    android:textColor="@color/primary_light"
+                    android:textSize="30sp"
+                    android:typeface="monospace" />
+
+                <TextView
+                    android:id="@+id/txtReceive"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/TextView"
+                    android:layout_centerHorizontal="true"
+                    android:layout_centerInParent="true"
+                    android:singleLine="true"
                     android:text="OUT"
                     android:textSize="28sp"
                     android:typeface="monospace" />
@@ -92,7 +94,7 @@
                 android:id="@+id/DenRelative"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_below="@id/OutRelative"
+                android:layout_below="@id/InRelative"
                 android:layout_centerHorizontal="true"
                 android:layout_marginTop="10dp"
                 android:background="@drawable/counts"

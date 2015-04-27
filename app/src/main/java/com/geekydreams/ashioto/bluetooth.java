@@ -36,6 +36,9 @@ import android.widget.Toast;
 
 public class bluetooth extends ActionBarActivity {
 
+    float area;
+    String rpi = "192.168.1.11";
+    int prt = 8080;
     private int mMaxChars = 50000;//Default
     private UUID mDeviceUUID;
     private BluetoothSocket mBTSocket;
@@ -108,12 +111,24 @@ public class bluetooth extends ActionBarActivity {
         mMaxChars = b.getInt(Start.BUFFER_SIZE);
         syncBtn = (Button) findViewById(R.id.syncBtn);
 
-        syncBtn.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
+        OnClickListener buttonConnectOnClickListener =
+                new OnClickListener(){
 
-            }
-        });
+                    @Override
+                    public void onClick(View arg0) {
+     /*
+      * You have to verify editTextAddress and
+      * editTextPort are input as correct format.
+      */
+
+                        MyClientTask myClientTask = new MyClientTask(
+                                rpi,
+                                prt);
+                        myClientTask.execute();
+                    }};
+        syncBtn.setOnClickListener(buttonConnectOnClickListener);
+
+
 
 
         //GEt Area
@@ -236,7 +251,7 @@ public class bluetooth extends ActionBarActivity {
                                     Float outInt = Float.parseFloat(outFin);
                                     float pplInInt = inInt - outInt;
                                     SharedPreferences getArea = getSharedPreferences(areaPref, 0);
-                                    float area = getArea.getFloat(areaPref, 0);
+                                    area = getArea.getFloat(areaPref, 0);
                                     float densityFin = pplInInt / area;
                                     denstityStr = String.valueOf(densityFin);
                                     try {
@@ -463,14 +478,13 @@ public class bluetooth extends ActionBarActivity {
         }
 
     }
-
     public class MyClientTask extends AsyncTask<Void, Void, Void> {
 
         String dstAddress;
         int dstPort;
         String response;
 
-        MyClientTask(String addr, int port) {
+        MyClientTask(String addr, int port){
             dstAddress = addr;
             dstPort = port;
         }
@@ -481,7 +495,7 @@ public class bluetooth extends ActionBarActivity {
             try {
                 Socket socket = new Socket(dstAddress, dstPort);
                 InputStream inputStream = socket.getInputStream();
-                String s = "Hello World";
+                String s = "#" + outFin + "$" + "^" + inFin + "*" + "%" + denstityStr + "@";
                 PrintWriter pw = new PrintWriter(socket.getOutputStream(), true);
                 pw.println(s);
                 ByteArrayOutputStream byteArrayOutputStream =
@@ -489,7 +503,7 @@ public class bluetooth extends ActionBarActivity {
                 byte[] buffer = new byte[1024];
 
                 int bytesRead;
-                while ((bytesRead = inputStream.read(buffer)) != -1) {
+                while ((bytesRead = inputStream.read(buffer)) != -1){
                     byteArrayOutputStream.write(buffer, 0, bytesRead);
                 }
 
@@ -510,5 +524,6 @@ public class bluetooth extends ActionBarActivity {
         protected void onPostExecute(Void result) {
             super.onPostExecute(result);
         }
+
     }
 }
