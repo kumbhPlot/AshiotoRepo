@@ -1,21 +1,17 @@
 package com.geekydreams.ashioto;
 
+import java.io.ByteArrayOutputStream;
 import java.io.Flushable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InterruptedIOException;
+import java.io.PrintWriter;
 import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.net.Socket;
+import java.net.UnknownHostException;
 import java.util.UUID;
-
-import com.geekydreams.ashioto.R;
-import com.jcraft.jsch.Channel;
-import com.jcraft.jsch.ChannelSftp;
-import com.jcraft.jsch.JSch;
-import com.jcraft.jsch.Session;
-
-import android.R.integer;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.ProgressDialog;
@@ -29,25 +25,16 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.Toolbar;
-import android.text.InputFilter.LengthFilter;
-import android.text.method.ScrollingMovementMethod;
-import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.RelativeLayout;
-import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 public class bluetooth extends ActionBarActivity {
-
-    String pubKeyFile = "/home/pi/.ssh/id_rsa";
-    String passPhrase = "scientific";
-    String host = "192.168.1.11", user = "pi";
-    String khfile = "/home/pi/.ssh/known_hosts";
 
     private int mMaxChars = 50000;//Default
     private UUID mDeviceUUID;
@@ -85,10 +72,6 @@ public class bluetooth extends ActionBarActivity {
 
     private ProgressDialog progressDialog;
     String strInput;
-    JSch jsch = null;
-    Session session = null;
-    Channel channel = null;
-    ChannelSftp c = null;
 
     Handler mHandler = new Handler() {
         public void handleMessage(android.os.Message msg) {
@@ -113,6 +96,7 @@ public class bluetooth extends ActionBarActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.tooltooth);
         setSupportActionBar(toolbar);
         ActivityHelper.initialize(this);
+        final String command = "ls";
         inRelative = (RelativeLayout) findViewById(R.id.InRelative);
         outRelative = (RelativeLayout) findViewById(R.id.OutRelative);
         denRelative = (RelativeLayout) findViewById(R.id.DenRelative);
@@ -127,17 +111,9 @@ public class bluetooth extends ActionBarActivity {
         syncBtn.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                try{
-                    jsch = new JSch();
-                    session = jsch.getSession(user, host, 22);
-                    session.setPassword(passPhrase);
-                    jsch.setKnownHosts(khfile);
-                    jsch.addIdentity(pubKeyFile);
-                    session.connect();
-                } catch (Exception e) { 	e.printStackTrace();	}
+
             }
         });
-
 
 
         //GEt Area
@@ -241,53 +217,53 @@ public class bluetooth extends ActionBarActivity {
 
                         if (strInput.startsWith("#")) {
 
-                                mTxtReceive.post(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        //replace #with $
+                            mTxtReceive.post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    //replace #with $
 
 
-                                        //OUT
-                                        int endOut = strInput.lastIndexOf("%");
-                                        int secOut = strInput.lastIndexOf("^");
-                                        outFin = strInput.substring(endOut + 1, secOut);
-                                        //IN
-                                        int endIn = strInput.lastIndexOf("#");
-                                        int secIn = strInput.lastIndexOf("$");
-                                        final String inFin = strInput.substring(endIn + 1, secIn);
-                                        //DENSITY
-                                        Float inInt = Float.parseFloat(inFin);
-                                        Float outInt = Float.parseFloat(outFin);
-                                        float pplInInt = inInt - outInt;
-                                        SharedPreferences getArea = getSharedPreferences(areaPref, 0);
-                                        float area = getArea.getFloat(areaPref, 0);
-                                        float densityFin = pplInInt / area;
-                                        denstityStr = String.valueOf(densityFin);
-                                        try {
-                                            mTxtdensity.setText(denstityStr);
-                                        } catch (NullPointerException e) {
-                                            e.printStackTrace();
+                                    //OUT
+                                    int endOut = strInput.lastIndexOf("%");
+                                    int secOut = strInput.lastIndexOf("^");
+                                    outFin = strInput.substring(endOut + 1, secOut);
+                                    //IN
+                                    int endIn = strInput.lastIndexOf("#");
+                                    int secIn = strInput.lastIndexOf("$");
+                                    final String inFin = strInput.substring(endIn + 1, secIn);
+                                    //DENSITY
+                                    Float inInt = Float.parseFloat(inFin);
+                                    Float outInt = Float.parseFloat(outFin);
+                                    float pplInInt = inInt - outInt;
+                                    SharedPreferences getArea = getSharedPreferences(areaPref, 0);
+                                    float area = getArea.getFloat(areaPref, 0);
+                                    float densityFin = pplInInt / area;
+                                    denstityStr = String.valueOf(densityFin);
+                                    try {
+                                        mTxtdensity.setText(denstityStr);
+                                    } catch (NullPointerException e) {
+                                        e.printStackTrace();
 //                                        mTxtdensity.setText("Data Not Available");
-                                        }
+                                    }
 
 
-                                        //String inString = String.valueOf(inInt);
-                                        //String outString = String.valueOf(outInt);
+                                    //String inString = String.valueOf(inInt);
+                                    //String outString = String.valueOf(outInt);
                                 /*String strTemp = strTest.replace(strTest.charAt(endlastoccurrence),'$');
 
                                 final String strEmpty="";
                                 int iLastindex=strTest.lastIndexOf('$');
                                 final String strTest2=strTest.substring(iLastindex, strTest.length());
                                 strInput=strInput.replace("#", "$");*/
-                                        try {
-                                            //mTxtOut.setText(inString);
-                                            mTxtReceive.setText(outFin);
-                                        } catch (NullPointerException e) {
-                                            //mTxtOut.setText("Data Not Available");
-                                            mTxtReceive.setText("Data Not Available");
+                                    try {
+                                        //mTxtOut.setText(inString);
+                                        mTxtReceive.setText(outFin);
+                                    } catch (NullPointerException e) {
+                                        //mTxtOut.setText("Data Not Available");
+                                        mTxtReceive.setText("Data Not Available");
 //                                  mTxtdensity.setText("Data Not Available");
-                                            e.printStackTrace();
-                                        }
+                                        e.printStackTrace();
+                                    }
 
                                 /*if (densityFin != null) {
                                     mTxtdensity.append(densityFin);
@@ -295,9 +271,9 @@ public class bluetooth extends ActionBarActivity {
                                     mTxtdensity.setText("Data Not Available");
                                 }*/
 
-                                        //Uncomment below for testing
-                                        //mTxtReceive.append("\n");
-                                        //mTxtReceive.append("Chars: " + strInput.length() + " Lines: " + mTxtReceive.getLineCount() +"\n");
+                                    //Uncomment below for testing
+                                    //mTxtReceive.append("\n");
+                                    //mTxtReceive.append("Chars: " + strInput.length() + " Lines: " + mTxtReceive.getLineCount() +"\n");
 /*
                                     int outlength = mTxtOut.getEditableText().length();
                                     if (outlength >= outFin.length()){
@@ -318,24 +294,24 @@ public class bluetooth extends ActionBarActivity {
                                             }
                                         });
                                     }*/
-                                    }
-                                });
-                                mTxtOut.post(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        //IN
-                                        int endIn = strInput.lastIndexOf("#");
-                                        int secIn = strInput.lastIndexOf("$");
-                                        inFin = strInput.substring(endIn + 1, secIn);
+                                }
+                            });
+                            mTxtOut.post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    //IN
+                                    int endIn = strInput.lastIndexOf("#");
+                                    int secIn = strInput.lastIndexOf("$");
+                                    inFin = strInput.substring(endIn + 1, secIn);
 
-                                        try {
-                                            mTxtOut.setText(inFin);
-                                        } catch (NullPointerException e) {
-                                            mTxtOut.setText("Data not available");
-                                            e.printStackTrace();
-                                        }
+                                    try {
+                                        mTxtOut.setText(inFin);
+                                    } catch (NullPointerException e) {
+                                        mTxtOut.setText("Data not available");
+                                        e.printStackTrace();
                                     }
-                                });
+                                }
+                            });
 
                         }
                     } else if (mBTSocket.equals(null)) {
@@ -488,4 +464,51 @@ public class bluetooth extends ActionBarActivity {
 
     }
 
+    public class MyClientTask extends AsyncTask<Void, Void, Void> {
+
+        String dstAddress;
+        int dstPort;
+        String response;
+
+        MyClientTask(String addr, int port) {
+            dstAddress = addr;
+            dstPort = port;
+        }
+
+        @Override
+        protected Void doInBackground(Void... arg0) {
+
+            try {
+                Socket socket = new Socket(dstAddress, dstPort);
+                InputStream inputStream = socket.getInputStream();
+                String s = "Hello World";
+                PrintWriter pw = new PrintWriter(socket.getOutputStream(), true);
+                pw.println(s);
+                ByteArrayOutputStream byteArrayOutputStream =
+                        new ByteArrayOutputStream(1024);
+                byte[] buffer = new byte[1024];
+
+                int bytesRead;
+                while ((bytesRead = inputStream.read(buffer)) != -1) {
+                    byteArrayOutputStream.write(buffer, 0, bytesRead);
+                }
+
+                socket.close();
+                response = byteArrayOutputStream.toString("UTF-8");
+
+            } catch (UnknownHostException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void result) {
+            super.onPostExecute(result);
+        }
+    }
 }

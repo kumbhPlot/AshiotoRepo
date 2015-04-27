@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
-
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -352,6 +351,9 @@ public class Start extends ActionBarActivity {
             switch (item.getItemId()) {
                 case R.id.action_settings:
                 	startActivity(new Intent(Start.this, settings.class));
+                    break;
+                case R.id.action_connect:
+                    startActivity(new Intent(Start.this, MainActivity.class));
                     break;
             }
             return super.onOptionsItemSelected(item);

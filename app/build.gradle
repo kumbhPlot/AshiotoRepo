@@ -21,5 +21,4 @@ android {
 
 dependencies {
     compile 'com.android.support:appcompat-v7:22.0.0'
-    compile 'com.jcraft:jsch:0.1.52'
 }

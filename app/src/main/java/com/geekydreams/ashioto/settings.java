@@ -1,6 +1,5 @@
 package com.geekydreams.ashioto;
 
-import com.jcraft.jsch.*;
 import android.app.Activity;
 import android.content.SharedPreferences;
 import android.os.Bundle;

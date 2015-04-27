@@ -6,5 +6,9 @@
             android:title="Parameters"
             android:orderInCategory="100"
             app:showAsAction="never" />
+        <item android:id="@+id/action_connect"
+            android:title="Connect"
+            android:orderInCategory="200"
+            app:showAsAction="never"/>
     </group>
 </menu>

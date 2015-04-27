@@ -2,6 +2,13 @@
 <items version="2" >
 
     <item
+        jar="/home/geek/.gradle/caches/modules-2/files-2.1/com.jcraft/jsch/0.1.52/4988681cd939d45f88cb56a0806ad4064e621d1c/jsch-0.1.52.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="4988681cd939d45f88cb56a0806ad4064e621d1c">
+        <dex dex="/home/geek/Ashioto2/app/build/intermediates/pre-dexed/debug/jsch-0.1.52-0c13a311b1a3d48a7fc195607641f2562c0a93bc.jar" />
+    </item>
+    <item
         jar="/home/geek/Android/Sdk/extras/android/m2repository/com/android/support/support-annotations/22.0.0/support-annotations-22.0.0.jar"
         jumboMode="false"
         revision="21.1.2"
@@ -9,18 +16,18 @@
         <dex dex="/home/geek/Ashioto2/app/build/intermediates/pre-dexed/debug/support-annotations-22.0.0-3a0144b0f84cd6f96d22061bcd16e20549ac2c29.jar" />
     </item>
     <item
-        jar="/home/geek/Ashioto2/app/build/intermediates/exploded-aar/com.android.support/support-v4/22.0.0/classes.jar"
-        jumboMode="false"
-        revision="21.1.2"
-        sha1="4e86306289ace4aa0cfec44a05ed2b410d36989d">
-        <dex dex="/home/geek/Ashioto2/app/build/intermediates/pre-dexed/debug/classes-aa7889322b61149d03149d35cc15fddcca15e0fe.jar" />
-    </item>
-    <item
         jar="/home/geek/Ashioto2/app/build/intermediates/exploded-aar/com.android.support/appcompat-v7/22.0.0/classes.jar"
         jumboMode="false"
         revision="21.1.2"
         sha1="d84409890828e07d344a3b9b1da545dba9897b51">
         <dex dex="/home/geek/Ashioto2/app/build/intermediates/pre-dexed/debug/classes-d1c22295d151a684a20d5839d64e58ba1ecc30e0.jar" />
+    </item>
+    <item
+        jar="/home/geek/Ashioto2/app/build/intermediates/exploded-aar/com.android.support/support-v4/22.0.0/classes.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="4e86306289ace4aa0cfec44a05ed2b410d36989d">
+        <dex dex="/home/geek/Ashioto2/app/build/intermediates/pre-dexed/debug/classes-aa7889322b61149d03149d35cc15fddcca15e0fe.jar" />
     </item>
     <item
         jar="/home/geek/Ashioto2/app/build/intermediates/exploded-aar/com.android.support/support-v4/22.0.0/libs/internal_impl-22.0.0.jar"

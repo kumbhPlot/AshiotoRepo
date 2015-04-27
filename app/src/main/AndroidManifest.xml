@@ -2,20 +2,21 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.geekydreams.ashioto"
     android:versionCode="1"
-    android:versionName="1.0" >
+    android:versionName="1.0">
 
     <uses-permission android:name="android.permission.BLUETOOTH" />
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
--
+    <uses-permission android:name="android.permission.INTERNET"/>
+    -
     <application
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
-        android:theme="@style/AppTheme" >
+        android:theme="@style/AppTheme">
         <activity
             android:name=".Start"
             android:label="@string/app_name"
-            android:screenOrientation="portrait" >
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -25,11 +26,10 @@
         <activity
             android:name=".bluetooth"
             android:label="Ashioto"
-            android:screenOrientation="portrait" >
-        </activity>
+            android:screenOrientation="portrait"></activity>
         <activity
             android:name=".settings"
-            android:label="Settings" >
+            android:label="Settings">
             <intent-filter>
                 <action android:name="com.IndovationStudios.Ashioto.settings" />
 
@@ -38,11 +38,13 @@
         </activity>
         <activity
             android:name=".home"
-            android:label="@string/title_activity_home" >
-        </activity>
+            android:label="@string/title_activity_home"></activity>
         <activity
             android:name=".library_start"
-            android:label="@string/title_activity_library_start" >
+            android:label="@string/title_activity_library_start"></activity>
+        <activity
+            android:name=".MainActivity"
+            android:label="Connect">
         </activity>
     </application>
 
