@@ -36,6 +36,7 @@ import android.widget.Toast;
 
 public class bluetooth extends ActionBarActivity {
 
+    float appFin;
     float area;
     String rpi = "192.168.1.11";
     int prt = 8080;
@@ -252,8 +253,8 @@ public class bluetooth extends ActionBarActivity {
                                     float pplInInt = inInt - outInt;
                                     SharedPreferences getArea = getSharedPreferences(areaPref, 0);
                                     area = getArea.getFloat(areaPref, 0);
-                                    float densityFin = pplInInt / area;
-                                    denstityStr = String.valueOf(densityFin);
+                                    appFin = area/pplInInt;
+                                    denstityStr = String.valueOf(appFin);
                                     try {
                                         mTxtdensity.setText(denstityStr);
                                     } catch (NullPointerException e) {
@@ -495,7 +496,7 @@ public class bluetooth extends ActionBarActivity {
             try {
                 Socket socket = new Socket(dstAddress, dstPort);
                 InputStream inputStream = socket.getInputStream();
-                String s = "#" + outFin + "$" + "^" + inFin + "*" + "%" + denstityStr + "@";
+                String s = "#" + outFin + "$" + inFin + "*" + appFin + "%";
                 PrintWriter pw = new PrintWriter(socket.getOutputStream(), true);
                 pw.println(s);
                 ByteArrayOutputStream byteArrayOutputStream =
