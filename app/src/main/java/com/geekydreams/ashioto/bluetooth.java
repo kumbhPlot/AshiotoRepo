@@ -12,6 +12,7 @@ import java.lang.reflect.Method;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.UUID;
+
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.ProgressDialog;
@@ -38,8 +39,8 @@ public class bluetooth extends ActionBarActivity {
 
     float appFin;
     float area;
-    String rpi = "192.168.1.11";
-    int prt = 8080;
+    String rpi = "nilayscience.no-ip.org";
+    int prt = 8343;
     private int mMaxChars = 50000;//Default
     private UUID mDeviceUUID;
     private BluetoothSocket mBTSocket;
@@ -113,7 +114,7 @@ public class bluetooth extends ActionBarActivity {
         syncBtn = (Button) findViewById(R.id.syncBtn);
 
         OnClickListener buttonConnectOnClickListener =
-                new OnClickListener(){
+                new OnClickListener() {
 
                     @Override
                     public void onClick(View arg0) {
@@ -126,10 +127,9 @@ public class bluetooth extends ActionBarActivity {
                                 rpi,
                                 prt);
                         myClientTask.execute();
-                    }};
+                    }
+                };
         syncBtn.setOnClickListener(buttonConnectOnClickListener);
-
-
 
 
         //GEt Area
@@ -221,7 +221,7 @@ public class bluetooth extends ActionBarActivity {
                         int stringStream = inputStream.read(buffer);
                         int i;
                         /*
-						 * This is needed because new String(buffer) is taking the entire buffer i.e. 256 chars on Android 2.3.4 http://stackoverflow.com/a/8843462/1287554
+                         * This is needed because new String(buffer) is taking the entire buffer i.e. 256 chars on Android 2.3.4 http://stackoverflow.com/a/8843462/1287554
 						 */
                         for (i = 0; i <= buffer.length && buffer[i] != 0; i++) {
                             strInput = new String(buffer, 0, i);
@@ -253,7 +253,7 @@ public class bluetooth extends ActionBarActivity {
                                     float pplInInt = inInt - outInt;
                                     SharedPreferences getArea = getSharedPreferences(areaPref, 0);
                                     area = getArea.getFloat(areaPref, 0);
-                                    appFin = area/pplInInt;
+                                    appFin = area / pplInInt;
                                     denstityStr = String.valueOf(appFin);
                                     try {
                                         mTxtdensity.setText(denstityStr);
@@ -479,13 +479,14 @@ public class bluetooth extends ActionBarActivity {
         }
 
     }
+
     public class MyClientTask extends AsyncTask<Void, Void, Void> {
 
         String dstAddress;
         int dstPort;
         String response;
 
-        MyClientTask(String addr, int port){
+        MyClientTask(String addr, int port) {
             dstAddress = addr;
             dstPort = port;
         }
@@ -504,7 +505,7 @@ public class bluetooth extends ActionBarActivity {
                 byte[] buffer = new byte[1024];
 
                 int bytesRead;
-                while ((bytesRead = inputStream.read(buffer)) != -1){
+                while ((bytesRead = inputStream.read(buffer)) != -1) {
                     byteArrayOutputStream.write(buffer, 0, bytesRead);
                 }
 
