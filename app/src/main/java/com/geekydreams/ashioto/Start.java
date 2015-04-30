@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -63,7 +64,7 @@ public class Start extends ActionBarActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolstart);
         toolbar.setTitleTextColor(getResources().getColor(R.color.primary_light));
         setSupportActionBar(toolbar);
-       // ActivityHelper.initialize(this); //This is to ensure that the rotation persists across activities and not just this one
+        // ActivityHelper.initialize(this); //This is to ensure that the rotation persists across activities and not just this one
         SharedPreferences getArea = getSharedPreferences(areaPref, 0);
         float area = getArea.getFloat(areaPref, 0);
         String areaString = String.valueOf(area);
@@ -71,17 +72,17 @@ public class Start extends ActionBarActivity {
         mBtnSearch = (Button) findViewById(R.id.btnSearch);
 
         mLstDevices = (ListView) findViewById(R.id.lstDevices);
-		/*
+        /*
 		 *Check if there is a savedInstanceState. If yes, that means the onCreate was probably triggered by a configuration change
 		 *like screen rotate etc. If that's the case then populate all the views that are necessary here
 		 */
         if (savedInstanceState != null) {
             ArrayList<BluetoothDevice> list = savedInstanceState.getParcelableArrayList(DEVICE_LIST);
-            if(list!=null){
+            if (list != null) {
                 initList(list);
-                MyAdapter adapter = (MyAdapter)mLstDevices.getAdapter();
+                MyAdapter adapter = (MyAdapter) mLstDevices.getAdapter();
                 int selectedIndex = savedInstanceState.getInt(DEVICE_LIST_SELECTED);
-                if(selectedIndex != -1){
+                if (selectedIndex != -1) {
                     adapter.setSelectedIndex(selectedIndex);
                     mBtnConnect.setEnabled(true);
                 }
@@ -121,7 +122,7 @@ public class Start extends ActionBarActivity {
         } else {
             new SearchDevices().execute();
         }
-        
+
     }
 
     /**
@@ -188,6 +189,7 @@ public class Start extends ActionBarActivity {
 
     /**
      * Quick way to call the Toast
+     *
      * @param str
      */
     private void msg(String str) {
@@ -196,6 +198,7 @@ public class Start extends ActionBarActivity {
 
     /**
      * Initialize the List adapter
+     *
      * @param objects
      */
     private void initList(List<BluetoothDevice> objects) {
@@ -219,8 +222,8 @@ public class Start extends ActionBarActivity {
     /**
      * Searches for paired devices. Doesn't do a scan! Only devices which are paired through Settings->Bluetooth
      * will show up with this. I didn't see any need to re-build the wheel over here
-     * @author ryder
      *
+     * @author ryder
      */
     private class SearchDevices extends AsyncTask<Void, Void, List<BluetoothDevice>> {
 
@@ -231,7 +234,7 @@ public class Start extends ActionBarActivity {
             for (BluetoothDevice device : pairedDevices) {
 
                 //check if the devicename starts with HC then only add into the list
-                if(device.getName().startsWith("HC")) {
+                if (device.getName().startsWith("HC")) {
                     listDevices.add(device);
                 }
             }
@@ -245,7 +248,7 @@ public class Start extends ActionBarActivity {
             if (listDevices.size() > 0) {
                 MyAdapter adapter = (MyAdapter) mLstDevices.getAdapter();
                 adapter.replaceItems(listDevices);
-                } else {
+            } else {
                 msg("No paired devices found, please pair your serial BT device and try again");
             }
         }
@@ -256,8 +259,8 @@ public class Start extends ActionBarActivity {
      * Custom adapter to show the current devices in the list. This is a bit of an overkill for this
      * project, but I figured it would be good learning
      * Most of the code is lifted from somewhere but I can't find the link anymore
-     * @author ryder
      *
+     * @author ryder
      */
     private class MyAdapter extends ArrayAdapter<BluetoothDevice> {
         private int selectedIndex;
@@ -270,7 +273,7 @@ public class Start extends ActionBarActivity {
             context = ctx;
             myList = objects;
             selectedIndex = -1;
-         }
+        }
 
         public void setSelectedIndex(int position) {
             selectedIndex = position;
@@ -346,14 +349,14 @@ public class Start extends ActionBarActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-            switch (item.getItemId()) {
-                case R.id.action_settings:
-                	startActivity(new Intent(Start.this, settings.class));
-                    break;
-                case R.id.action_connect:
-                    startActivity(new Intent(Start.this, MainActivity.class));
-                    break;
-            }
-            return super.onOptionsItemSelected(item);
-    	}
+        switch (item.getItemId()) {
+            case R.id.action_settings:
+                startActivity(new Intent(Start.this, settings.class));
+                break;
+            case R.id.action_connect:
+                startActivity(new Intent(Start.this, MainActivity.class));
+                break;
+        }
+        return super.onOptionsItemSelected(item);
     }
+}

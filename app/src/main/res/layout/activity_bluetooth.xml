@@ -9,60 +9,23 @@
         layout="@layout/toolbar" />
 
     <ScrollView
-        android:paddingRight="5dp"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
-        android:layout_below="@id/tooltooth">
+        android:layout_below="@id/tooltooth"
+        android:paddingRight="5dp">
 
         <RelativeLayout
             android:layout_width="fill_parent"
             android:layout_height="fill_parent">
 
 
-
-
-
             <RelativeLayout
-                android:id="@+id/OutRelative"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_centerHorizontal="true"
-                android:layout_marginTop="10dp"
-                android:background="@drawable/counts"
-                android:padding="20dp">
-
-                <TextView
-                    android:id="@+id/TextView2"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_centerHorizontal="true"
-                    android:text="IN"
-                    android:textAppearance="?android:attr/textAppearanceLarge"
-                    android:textColor="@color/primary_light"
-                    android:textSize="30sp" />
-
-                <TextView
-                    android:id="@+id/txtOut"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_below="@id/TextView2"
-                    android:layout_centerHorizontal="true"
-                    android:layout_centerInParent="true"
-                    android:clickable="false"
-                    android:singleLine="true"
-                    android:text="IN"
-                    android:textSize="28sp"
-                    android:typeface="monospace" />
-            </RelativeLayout>
-
-            <RelativeLayout
-                android:layout_below="@id/OutRelative"
                 android:id="@+id/InRelative"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:layout_centerHorizontal="true"
                 android:layout_marginTop="20dp"
-                android:background  ="@drawable/counts"
+                android:background="@drawable/counts"
                 android:padding="20dp">
 
 
@@ -71,7 +34,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_centerHorizontal="true"
-                    android:text="OUT"
+                    android:text="IN"
                     android:textAppearance="?android:attr/textAppearanceLarge"
                     android:textColor="@color/primary_light"
                     android:textSize="30sp"
@@ -85,16 +48,51 @@
                     android:layout_centerHorizontal="true"
                     android:layout_centerInParent="true"
                     android:singleLine="true"
-                    android:text="OUT"
+                    android:text="IN"
                     android:textSize="28sp"
                     android:typeface="monospace" />
             </RelativeLayout>
 
             <RelativeLayout
-                android:id="@+id/DenRelative"
+                android:id="@+id/OutRelative"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_below="@id/InRelative"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="10dp"
+                android:background="@drawable/counts"
+                android:padding="20dp">
+
+                <TextView
+                    android:id="@+id/TextView2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerHorizontal="true"
+                    android:text="OUT"
+                    android:textAppearance="?android:attr/textAppearanceLarge"
+                    android:textColor="@color/primary_light"
+                    android:textSize="30sp" />
+
+                <TextView
+                    android:id="@+id/txtOut"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/TextView2"
+                    android:layout_centerHorizontal="true"
+                    android:layout_centerInParent="true"
+                    android:clickable="false"
+                    android:singleLine="true"
+                    android:text="OUT"
+                    android:textSize="28sp"
+                    android:typeface="monospace" />
+            </RelativeLayout>
+
+
+            <RelativeLayout
+                android:id="@+id/DenRelative"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/OutRelative"
                 android:layout_centerHorizontal="true"
                 android:layout_marginTop="10dp"
                 android:background="@drawable/counts"
@@ -120,13 +118,14 @@
                     android:text="DENSITY"
                     android:textSize="28sp" />
             </RelativeLayout>
+
             <Button
                 android:id="@+id/syncBtn"
-                android:text="Sync"
-                android:layout_centerHorizontal="true"
-                android:layout_below="@id/DenRelative"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
+                android:layout_height="wrap_content"
+                android:layout_below="@id/DenRelative"
+                android:layout_centerHorizontal="true"
+                android:text="Sync" />
         </RelativeLayout>
     </ScrollView>
 </RelativeLayout>

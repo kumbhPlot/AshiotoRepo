@@ -1,9 +1,8 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!-- Definig a container for you List Item -->
+<?xml version="1.0" encoding="utf-8"?><!-- Definig a container for you List Item -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:gravity="center_vertical" >
+    android:gravity="center_vertical">
 
     <!-- Defining where should text be placed. You set you text color here -->
 
@@ -12,9 +11,9 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_margin="4dip"
-        android:textSize="20sp"
         android:gravity="left"
         android:padding="5dp"
-        android:textColor="#000000" />
+        android:textColor="#000000"
+        android:textSize="20sp" />
 
 </LinearLayout>

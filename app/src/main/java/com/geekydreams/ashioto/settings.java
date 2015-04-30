@@ -17,10 +17,10 @@ import android.widget.SeekBar;
 
 public class settings extends ActionBarActivity {
     //Views
-	public SeekBar seek;
-	public EditText normal;
-	public EditText warn;
-	public EditText over;
+    public SeekBar seek;
+    public EditText normal;
+    public EditText warn;
+    public EditText over;
     public EditText areaView;
     //Strings
     public String areaPref = "areaPref";
@@ -50,7 +50,7 @@ public class settings extends ActionBarActivity {
 
         SharedPreferences getArea = getSharedPreferences(areaPref, 0);
         float areaF = getArea.getFloat(areaPref, 0);
-        savedBefore  = String.valueOf(areaF);
+        savedBefore = String.valueOf(areaF);
 
         areaView.setText(savedBefore);
 

@@ -5,24 +5,26 @@
     tools:context="com.geekydreams.ashioto.library_start">
 
     <include
-        layout="@layout/toolbar"
         android:id="@+id/toolLib"
-        />
+        layout="@layout/toolbar" />
+
     <RelativeLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@id/toolLib">
+
         <Button
-            android:padding="28dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Scan"/>
+            android:padding="28dp"
+            android:text="Scan" />
+
         <ListView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:smoothScrollbar="true">
 
-            </ListView>
-        </RelativeLayout>
+        </ListView>
+    </RelativeLayout>
 
 </RelativeLayout>

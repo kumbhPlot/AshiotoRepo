@@ -3,6 +3,7 @@ package com.geekydreams.ashioto;
 /**
  * Created by geek on 27/4/15.
  */
+
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -25,7 +26,7 @@ import android.widget.TextView;
 public class MainActivity extends Activity {
 
     TextView textResponse;
-    EditText editTextAddress, editTextPort;
+    EditText editTextAddress, editTextPort, toSend;
     Button buttonConnect, buttonClear;
 
     @Override
@@ -33,24 +34,26 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        editTextAddress = (EditText)findViewById(R.id.address);
-        editTextPort = (EditText)findViewById(R.id.port);
-        buttonConnect = (Button)findViewById(R.id.connect);
-        buttonClear = (Button)findViewById(R.id.clear);
-        textResponse = (TextView)findViewById(R.id.response);
+        editTextAddress = (EditText) findViewById(R.id.address);
+        editTextPort = (EditText) findViewById(R.id.port);
+        buttonConnect = (Button) findViewById(R.id.connect);
+        buttonClear = (Button) findViewById(R.id.clear);
+        textResponse = (TextView) findViewById(R.id.response);
+        toSend = (EditText) findViewById(R.id.toSend);
 
         buttonConnect.setOnClickListener(buttonConnectOnClickListener);
 
-        buttonClear.setOnClickListener(new OnClickListener(){
+        buttonClear.setOnClickListener(new OnClickListener() {
 
             @Override
             public void onClick(View v) {
                 textResponse.setText("");
-            }});
+            }
+        });
     }
 
     OnClickListener buttonConnectOnClickListener =
-            new OnClickListener(){
+            new OnClickListener() {
 
                 @Override
                 public void onClick(View arg0) {
@@ -63,7 +66,8 @@ public class MainActivity extends Activity {
                             editTextAddress.getText().toString(),
                             Integer.parseInt(editTextPort.getText().toString()));
                     myClientTask.execute();
-                }};
+                }
+            };
 
     public class MyClientTask extends AsyncTask<Void, Void, Void> {
 
@@ -71,7 +75,7 @@ public class MainActivity extends Activity {
         int dstPort;
         String response;
 
-        MyClientTask(String addr, int port){
+        MyClientTask(String addr, int port) {
             dstAddress = addr;
             dstPort = port;
         }
@@ -82,7 +86,7 @@ public class MainActivity extends Activity {
             try {
                 Socket socket = new Socket(dstAddress, dstPort);
                 InputStream inputStream = socket.getInputStream();
-                String s = "Hello World";
+                String s = toSend.getText().toString();
                 PrintWriter pw = new PrintWriter(socket.getOutputStream(), true);
                 pw.println(s);
                 ByteArrayOutputStream byteArrayOutputStream =
@@ -90,7 +94,7 @@ public class MainActivity extends Activity {
                 byte[] buffer = new byte[1024];
 
                 int bytesRead;
-                while ((bytesRead = inputStream.read(buffer)) != -1){
+                while ((bytesRead = inputStream.read(buffer)) != -1) {
                     byteArrayOutputStream.write(buffer, 0, bytesRead);
                 }
 

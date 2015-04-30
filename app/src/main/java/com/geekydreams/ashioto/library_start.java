@@ -8,7 +8,6 @@ import android.view.MenuItem;
 import android.widget.Toast;
 
 
-
 public class library_start extends ActionBarActivity {
 
     @Override

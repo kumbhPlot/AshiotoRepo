@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~ This file is part of Know Your Droid.
   ~
   ~     Know Your Droid is free software: you can redistribute it and/or modify
@@ -16,12 +15,11 @@
   ~     along with Know Your Droid.  If not, see <http://www.gnu.org/licenses/>.
   -->
 
-<android.support.v7.widget.Toolbar
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.v7.widget.Toolbar xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/my_awesome_toolbar"
-    android:layout_height="wrap_content"
     android:layout_width="match_parent"
-    android:minHeight="?attr/actionBarSize"
+    android:layout_height="wrap_content"
     android:background="@color/primary_dark"
-    android:titleTextAppearance="@color/icons"/>
+    android:minHeight="?attr/actionBarSize"
+    android:titleTextAppearance="@color/icons" />
