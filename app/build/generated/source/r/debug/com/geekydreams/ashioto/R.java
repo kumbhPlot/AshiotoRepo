@@ -1325,11 +1325,11 @@ containing a value of this type.
     }
     public static final class id {
         public static final int DenRelative=0x7f080046;
-        public static final int InRelative=0x7f080043;
-        public static final int OutRelative=0x7f080040;
-        public static final int TextView=0x7f080044;
+        public static final int InRelative=0x7f080040;
+        public static final int OutRelative=0x7f080043;
+        public static final int TextView=0x7f080041;
         public static final int TextView1=0x7f080047;
-        public static final int TextView2=0x7f080041;
+        public static final int TextView2=0x7f080044;
         public static final int action_bar=0x7f080031;
         public static final int action_bar_activity_content=0x7f080000;
         public static final int action_bar_container=0x7f080030;
@@ -1426,8 +1426,8 @@ containing a value of this type.
         public static final int toolstart=0x7f080064;
         public static final int tooltooth=0x7f08003f;
         public static final int txtListHeading=0x7f080065;
-        public static final int txtOut=0x7f080042;
-        public static final int txtReceive=0x7f080045;
+        public static final int txtOut=0x7f080045;
+        public static final int txtReceive=0x7f080042;
         public static final int up=0x7f080008;
         public static final int useLogo=0x7f080012;
         public static final int withText=0x7f08001a;
