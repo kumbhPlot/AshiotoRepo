@@ -53,11 +53,6 @@ public class bluetooth extends ActionBarActivity {
     private TextView mTxtReceive;
     private TextView mTxtOut;
     private TextView mTxtdensity;
-    private EditText mEditSend;
-    private Button mBtnDisconnect;
-    private Button mBtnSend;
-    private Button mBtnClear;
-    private Button mBtnClearInput;
     Button syncBtn;
     //  private ScrollView scrollView;
     private CheckBox chkScroll;
@@ -98,10 +93,10 @@ public class bluetooth extends ActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_bluetooth);
+
         Toolbar toolbar = (Toolbar) findViewById(R.id.tooltooth);
         setSupportActionBar(toolbar);
         ActivityHelper.initialize(this);
-        final String command = "ls";
         inRelative = (RelativeLayout) findViewById(R.id.InRelative);
         outRelative = (RelativeLayout) findViewById(R.id.OutRelative);
         denRelative = (RelativeLayout) findViewById(R.id.DenRelative);
@@ -118,11 +113,6 @@ public class bluetooth extends ActionBarActivity {
 
                     @Override
                     public void onClick(View arg0) {
-     /*
-      * You have to verify editTextAddress and
-      * editTextPort are input as correct format.
-      */
-
                         MyClientTask myClientTask = new MyClientTask(
                                 rpi,
                                 prt);
@@ -333,7 +323,7 @@ public class bluetooth extends ActionBarActivity {
                     } else if (mBTSocket.equals(null)) {
                         Toast.makeText(bluetooth.this, "Disconnected", Toast.LENGTH_SHORT).show();
                     }
-                    Thread.sleep(800);
+                    Thread.sleep(100);
                 }
             } catch (IOException e) {
                 // TODO Auto-generated catch block
@@ -487,7 +477,7 @@ public class bluetooth extends ActionBarActivity {
         String response;
 
         MyClientTask(String addr, int port) {
-            dstAddress = addr;
+            dstAddress =  addr;
             dstPort = port;
         }
 
@@ -524,6 +514,7 @@ public class bluetooth extends ActionBarActivity {
 
         @Override
         protected void onPostExecute(Void result) {
+            Toast.makeText(bluetooth.this, response, Toast.LENGTH_SHORT).show();
             super.onPostExecute(result);
         }
 
