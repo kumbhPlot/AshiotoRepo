@@ -13,6 +13,11 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.TimeZone;
 
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -23,11 +28,19 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import com.amazonaws.auth.CognitoCachingCredentialsProvider;
+import com.amazonaws.regions.Regions;
+import com.amazonaws.services.dynamodbv2.*;
+import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.*;
+import com.amazonaws.services.dynamodbv2.model.*;
+
 public class MainActivity extends Activity {
 
     TextView textResponse;
     EditText editTextAddress, editTextPort, toSend;
     Button buttonConnect, buttonClear;
+    DynamoDBMapper mapper;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,6 +63,44 @@ public class MainActivity extends Activity {
                 textResponse.setText("");
             }
         });
+        // Initialize the Amazon Cognito credentials provider
+        CognitoCachingCredentialsProvider credentialsProvider = new CognitoCachingCredentialsProvider(
+                MainActivity.this, // Context
+                "us-east-1:08e41de7-9cb0-40d6-9f04-6f8956ed25bb", // Identity Pool ID
+                Regions.US_EAST_1 // Region
+        );
+        AmazonDynamoDBClient ddbClient = new AmazonDynamoDBClient(credentialsProvider);
+        mapper = new DynamoDBMapper(ddbClient);
+
+
+        //Time
+        Calendar calendar = Calendar.getInstance();
+        String year;
+        String month;
+        String date;
+        String hour;
+        String minute;
+        String second;
+        DateFormat yearForm = new SimpleDateFormat("yyyy");
+        DateFormat monthForm = new SimpleDateFormat("MM");
+        DateFormat dateForm = new SimpleDateFormat("dd");
+        DateFormat hourForm = new SimpleDateFormat("HH");
+        DateFormat minuteForm = new SimpleDateFormat("mm");
+        DateFormat secondForm = new SimpleDateFormat("ss");
+        TimeZone timeZone = TimeZone.getTimeZone("IST");
+        yearForm.setTimeZone(timeZone);
+        monthForm.setTimeZone(timeZone);
+        dateForm.setTimeZone(timeZone);
+        hourForm.setTimeZone(timeZone);
+        minuteForm.setTimeZone(timeZone);
+        secondForm.setTimeZone(timeZone);
+        year = yearForm.format(calendar.getTime());
+        month = monthForm.format(calendar.getTime());
+        date = dateForm.format(calendar.getTime());
+        hour = hourForm.format(calendar.getTime());
+        minute = minuteForm.format(calendar.getTime());
+        second = secondForm.format(calendar.getTime());
+        //Time Ends
     }
 
     OnClickListener buttonConnectOnClickListener =
@@ -68,6 +119,7 @@ public class MainActivity extends Activity {
                     myClientTask.execute();
                 }
             };
+
 
     public class MyClientTask extends AsyncTask<Void, Void, Void> {
 
@@ -118,5 +170,5 @@ public class MainActivity extends Activity {
         }
 
     }
-
+    @DynamoDBTable(tableName = "A")
 }

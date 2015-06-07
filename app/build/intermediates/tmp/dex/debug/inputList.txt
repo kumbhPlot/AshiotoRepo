@@ -1,5 +1,5 @@
-/home/geek/Ashioto2/app/build/intermediates/classes/debug
-/home/geek/Ashioto2/app/build/intermediates/pre-dexed/debug/support-annotations-22.0.0-3a0144b0f84cd6f96d22061bcd16e20549ac2c29.jar
-/home/geek/Ashioto2/app/build/intermediates/pre-dexed/debug/internal_impl-22.0.0-b450a524b99d083cdc5f55ff749633778c8701bb.jar
-/home/geek/Ashioto2/app/build/intermediates/pre-dexed/debug/classes-d1c22295d151a684a20d5839d64e58ba1ecc30e0.jar
-/home/geek/Ashioto2/app/build/intermediates/pre-dexed/debug/classes-aa7889322b61149d03149d35cc15fddcca15e0fe.jar
+C:\Users\WIN8\AndroidStudioProjects\AshiotoRepo\app\build\intermediates\classes\debug
+C:\Users\WIN8\AndroidStudioProjects\AshiotoRepo\app\build\intermediates\pre-dexed\debug\support-annotations-22.0.0-f67701c585defa178b5429aaaa40d24f2f1ae6aa.jar
+C:\Users\WIN8\AndroidStudioProjects\AshiotoRepo\app\build\intermediates\pre-dexed\debug\internal_impl-22.0.0-aca363861f2c6a8963d97f57d180a61db370b9c7.jar
+C:\Users\WIN8\AndroidStudioProjects\AshiotoRepo\app\build\intermediates\pre-dexed\debug\classes-6510ece544608869c7d6ba9b249b3b12d553f630.jar
+C:\Users\WIN8\AndroidStudioProjects\AshiotoRepo\app\build\intermediates\pre-dexed\debug\classes-29916628df01a4fb846800d7ad376de01db62ced.jar
