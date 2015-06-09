@@ -104,6 +104,25 @@ public class MainActivity extends Activity {
         //Time Ends
     }
 
+    public String getYear(){
+        return year;
+    }
+    public String getMonth(){
+        return month;
+    }
+    public String getDate(){
+        return date;
+    }
+    public String getHour(){
+        return hour;
+    }
+    public String getMinute(){
+        return minute;
+    }
+    public String getSecond(){
+        return second;
+    }
+
     OnClickListener buttonConnectOnClickListener =
             new OnClickListener() {
 
