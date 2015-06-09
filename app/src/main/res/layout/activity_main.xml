@@ -47,4 +47,28 @@
         android:layout_height="wrap_content"
         android:singleLine="true"
         android:text="#200$100*10%" />
+    <EditText
+        android:text="178"
+        android:textSize="30sp"
+        android:id="@+id/inSendDB"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+    <EditText
+        android:text="83"
+        android:textSize="30sp"
+        android:id="@+id/outSendDB"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+    <EditText
+        android:text="1.81"
+        android:textSize="30sp"
+        android:id="@+id/appSendDB"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+    <Button
+        android:textSize="24sp"
+        android:text="Save to Database"
+        android:id="@+id/sendButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
 </LinearLayout>
