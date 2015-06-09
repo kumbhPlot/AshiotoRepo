@@ -41,6 +41,12 @@ public class MainActivity extends Activity {
     Button buttonConnect, buttonClear;
     DynamoDBMapper mapper;
 
+    String year;
+    String month;
+    String date;
+    String hour;
+    String minute;
+    String second;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,12 +81,7 @@ public class MainActivity extends Activity {
 
         //Time
         Calendar calendar = Calendar.getInstance();
-        String year;
-        String month;
-        String date;
-        String hour;
-        String minute;
-        String second;
+
         DateFormat yearForm = new SimpleDateFormat("yyyy");
         DateFormat monthForm = new SimpleDateFormat("MM");
         DateFormat dateForm = new SimpleDateFormat("dd");
@@ -170,5 +171,110 @@ public class MainActivity extends Activity {
         }
 
     }
-    @DynamoDBTable(tableName = "A")
+    @DynamoDBTable(tableName = "Ashioto")
+    public class Ashioto{
+        private String year;
+        private String month;
+        private String date;
+        private String hour;
+        private String minute;
+        private String second;
+        private String uuid;
+        private int gateID;
+        private int inCount;
+        private int outCount;
+        private float app;
+        private Boolean plotted;
+
+        //Initialization Attributes
+        @DynamoDBHashKey(attributeName = "uuid")
+        public String getUuid(){
+            return uuid;
+        }
+        public void setUuid(String uuid){
+            this.uuid = uuid;
+        }
+        @DynamoDBIndexHashKey(attributeName = "GateID")
+        public int getGateID(){
+            return gateID;
+        }
+        public void setGateID(int gateID){
+            this.gateID = gateID;
+        }
+        //End of initialization values
+        //Resource Attributes
+        @DynamoDBAttribute(attributeName = "Plotted")
+        public Boolean getPlotted(){
+            return plotted;
+        }
+        public void setPlotted(Boolean plotted){
+            this.plotted = plotted;
+        }
+        @DynamoDBAttribute(attributeName = "In")
+        public int getInCount(){
+            return inCount;
+        }
+        public void setInCount(int inCount){
+            this.inCount = inCount;
+        }
+        @DynamoDBAttribute(attributeName = "Out")
+        public int getOutCount(){
+            return outCount;
+        }
+        public void setOutCount(int outCount){
+            this.outCount = outCount;
+        }
+        @DynamoDBAttribute(attributeName = "APP")
+        public float getApp(){
+            return app;
+        }
+        public void setApp(float app){
+            this.app = app;
+        }
+        //End of Resource Attributes
+        //Timestamp Attributes
+        @DynamoDBAttribute(attributeName = "Year")
+        public String getYear(){
+            return year;
+        }
+        public void setYear(String year){
+            this.year = year;
+        }
+        @DynamoDBAttribute(attributeName = "Month")
+        public String getMonth(){
+            return month;
+        }
+        public void setMonth(String month){
+            this.month = month;
+        }
+        @DynamoDBAttribute(attributeName = "Date")
+        public String getDate(){
+            return date;
+        }
+        public void setDate(String date){
+            this.date = date;
+        }
+        @DynamoDBAttribute(attributeName = "Hour")
+        public String getHour(){
+            return hour;
+        }
+        public void setHour(String hour){
+            this.hour = hour;
+        }
+        @DynamoDBAttribute(attributeName = "Minute")
+        public String getMinute(){
+            return minute;
+        }
+        public void setMinute(String minute){
+            this.minute = minute;
+        }
+        @DynamoDBAttribute(attributeName = "Second")
+        public String getSecond(){
+            return second;
+        }
+        public void setSecond(String second){
+            this.second = second;
+        }
+        //End of Timestamp Attributes
+    }
 }

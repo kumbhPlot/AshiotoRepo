@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -15,7 +16,7 @@ import android.widget.EditText;
 import android.widget.SeekBar;
 
 
-public class settings extends ActionBarActivity {
+public class settings extends AppCompatActivity {
     //Views
     public SeekBar seek;
     public EditText normal;
