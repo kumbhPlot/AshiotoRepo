@@ -39,10 +39,7 @@ public class settings extends AppCompatActivity {
         setContentView(R.layout.activity_settings);
         SharedPreferences area = getSharedPreferences(areaPref, 0);
         final SharedPreferences.Editor prefsEditor = area.edit();
-        //Init
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolset);
-        toolbar.setTitleTextColor(getResources().getColor(R.color.primary_light));
-        setSupportActionBar(toolbar);
+
         seek = (SeekBar) findViewById(R.id.seekBar);
         normal = (EditText) findViewById(R.id.textView3);
         warn = (EditText) findViewById(R.id.editText);

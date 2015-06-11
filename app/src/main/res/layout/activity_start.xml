@@ -5,11 +5,6 @@
     android:orientation="vertical"
     tools:context=".Start">
 
-    <include
-        android:id="@+id/toolstart"
-        layout="@layout/toolbar" />
-
-
     <TextView
         android:id="@+id/txtListHeading"
         android:layout_width="fill_parent"

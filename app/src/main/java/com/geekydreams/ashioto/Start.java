@@ -17,6 +17,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -34,7 +35,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 
-public class Start extends ActionBarActivity {
+public class Start extends AppCompatActivity {
 
     private Button mBtnSearch;
     private Button mBtnConnect;
@@ -61,9 +62,6 @@ public class Start extends ActionBarActivity {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_start);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolstart);
-        toolbar.setTitleTextColor(getResources().getColor(R.color.primary_light));
-        setSupportActionBar(toolbar);
         // ActivityHelper.initialize(this); //This is to ensure that the rotation persists across activities and not just this one
         SharedPreferences getArea = getSharedPreferences(areaPref, 0);
         float area = getArea.getFloat(areaPref, 0);

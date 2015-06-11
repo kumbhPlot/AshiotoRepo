@@ -11,6 +11,10 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.TimeZone;
 import java.util.UUID;
 
 import android.annotation.SuppressLint;
@@ -34,6 +38,15 @@ import android.widget.EditText;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.amazonaws.auth.CognitoCachingCredentialsProvider;
+import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBAttribute;
+import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBHashKey;
+import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBIndexHashKey;
+import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBMapper;
+import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBTable;
+import com.amazonaws.regions.Regions;
+import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient;
 
 public class bluetooth extends ActionBarActivity {
 
@@ -73,6 +86,17 @@ public class bluetooth extends ActionBarActivity {
     private ProgressDialog progressDialog;
     String strInput;
 
+    //Amazon variables
+    DynamoDBMapper mapper;
+
+    //Strings
+    String year;
+    String month;
+    String date;
+    String hour;
+    String minute;
+    String second;
+
     Handler mHandler = new Handler() {
         public void handleMessage(android.os.Message msg) {
             switch (msg.what) {
@@ -94,6 +118,15 @@ public class bluetooth extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_bluetooth);
 
+        CognitoCachingCredentialsProvider credentialsProvider = new CognitoCachingCredentialsProvider(
+                bluetooth.this, // Context
+                "us-east-1:08e41de7-9cb0-40d6-9f04-6f8956ed25bb", // Identity Pool ID
+                Regions.US_EAST_1 // Region
+        );
+        AmazonDynamoDBClient ddbClient = new AmazonDynamoDBClient(credentialsProvider);
+        mapper = new DynamoDBMapper(ddbClient);
+
+
         Toolbar toolbar = (Toolbar) findViewById(R.id.tooltooth);
         setSupportActionBar(toolbar);
         ActivityHelper.initialize(this);
@@ -113,10 +146,8 @@ public class bluetooth extends ActionBarActivity {
 
                     @Override
                     public void onClick(View arg0) {
-                        MyClientTask myClientTask = new MyClientTask(
-                                rpi,
-                                prt);
-                        myClientTask.execute();
+                        SyncTask task  = new SyncTask();
+                        task.execute();
                     }
                 };
         syncBtn.setOnClickListener(buttonConnectOnClickListener);
@@ -194,8 +225,6 @@ public class bluetooth extends ActionBarActivity {
             return t.isAlive();
         }
 
-        @SuppressWarnings("unused")
-        @SuppressLint("NewApi")
         @Override
         public void run() {
             InputStream inputStream;
@@ -518,5 +547,174 @@ public class bluetooth extends ActionBarActivity {
             super.onPostExecute(result);
         }
 
+    }
+    @DynamoDBTable(tableName = "Ashioto_test")
+    public class Ashioto{
+        private String year;
+        private String month;
+        private String date;
+        private String hour;
+        private String minute;
+        private String second;
+        private String uuid;
+        private int gateID;
+        private int inCount;
+        private int outCount;
+        private float app;
+        private Boolean synced;
+        private Boolean plotted;
+
+        //Initialization Attributes
+        @DynamoDBHashKey(attributeName = "uuid")
+        public String getUuid(){
+            return uuid;
+        }
+        public void setUuid(String uuid){
+            this.uuid = uuid;
+        }
+        @DynamoDBIndexHashKey(attributeName = "GateID")
+        public int getGateID(){
+            return gateID;
+        }
+        public void setGateID(int gateID){
+            this.gateID = gateID;
+        }
+        //End of initialization values
+        //Resource Attributes
+        @DynamoDBAttribute(attributeName = "Plotted")
+        public Boolean getPlotted(){
+            return plotted;
+        }
+        public void setPlotted(Boolean plotted){
+            this.plotted = plotted;
+        }
+        @DynamoDBAttribute(attributeName = "Synced")
+        public Boolean getSynced(){
+            return synced;
+        }
+        public void setSynced(Boolean synced){
+            this.synced = synced;
+        }
+        @DynamoDBAttribute(attributeName = "In")
+        public int getInCount(){
+            return inCount;
+        }
+        public void setInCount(int inCount){
+            this.inCount = inCount;
+        }
+        @DynamoDBAttribute(attributeName = "Out")
+        public int getOutCount(){
+            return outCount;
+        }
+        public void setOutCount(int outCount){
+            this.outCount = outCount;
+        }
+        @DynamoDBAttribute(attributeName = "APP")
+        public float getApp(){
+            return app;
+        }
+        public void setApp(float app){
+            this.app = app;
+        }
+        //End of Resource Attributes
+        //Timestamp Attributes
+        @DynamoDBAttribute(attributeName = "Year")
+        public String getYear(){
+            return year;
+        }
+        public void setYear(String year){
+            this.year = year;
+        }
+        @DynamoDBAttribute(attributeName = "Month")
+        public String getMonth(){
+            return month;
+        }
+        public void setMonth(String month){
+            this.month = month;
+        }
+        @DynamoDBAttribute(attributeName = "Date")
+        public String getDate(){
+            return date;
+        }
+        public void setDate(String date){
+            this.date = date;
+        }
+        @DynamoDBAttribute(attributeName = "Hour")
+        public String getHour(){
+            return hour;
+        }
+        public void setHour(String hour){
+            this.hour = hour;
+        }
+        @DynamoDBAttribute(attributeName = "Minute")
+        public String getMinute(){
+            return minute;
+        }
+        public void setMinute(String minute){
+            this.minute = minute;
+        }
+        @DynamoDBAttribute(attributeName = "Second")
+        public String getSecond(){
+            return second;
+        }
+        public void setSecond(String second){
+            this.second = second;
+        }
+        //End of Timestamp Attributes
+    }
+    public class SyncTask extends AsyncTask<Void, Void, Void>{
+        @Override
+        protected Void doInBackground(Void... voids) {
+            //Time
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTimeZone(TimeZone.getTimeZone("Asia/Calcutta"));
+            DateFormat yearForm = new SimpleDateFormat("yyyy");
+            DateFormat monthForm = new SimpleDateFormat("MM");
+            DateFormat dateForm = new SimpleDateFormat("dd");
+            DateFormat hourForm = new SimpleDateFormat("HH");
+            DateFormat minuteForm = new SimpleDateFormat("mm");
+            DateFormat secondForm = new SimpleDateFormat("ss");
+            TimeZone timeZone = TimeZone.getTimeZone("Asia/Calcutta");
+            yearForm.setTimeZone(timeZone);
+            monthForm.setTimeZone(timeZone);
+            dateForm.setTimeZone(timeZone);
+            hourForm.setTimeZone(timeZone);
+            minuteForm.setTimeZone(timeZone);
+            secondForm.setTimeZone(timeZone);
+            year = yearForm.format(calendar.getTime());
+            month = monthForm.format(calendar.getTime());
+            date = dateForm.format(calendar.getTime());
+            hour = hourForm.format(calendar.getTime());
+            minute = minuteForm.format(calendar.getTime());
+            second = secondForm.format(calendar.getTime());
+            //End of Time
+            UUID uuid = UUID.randomUUID();
+            String uuidString = uuid.toString();
+            Integer inDB = Integer.valueOf(inFin);
+            Integer outDB = Integer.valueOf(outFin);
+            Float appDB = appFin;
+            Ashioto db = new Ashioto();
+            db.setUuid(uuidString);
+            db.setGateID(1);
+            db.setInCount(inDB);
+            db.setOutCount(outDB);
+            db.setApp(appDB);
+            db.setYear(year);
+            db.setMonth(month);
+            db.setDate(date);
+            db.setHour(hour);
+            db.setMinute(minute);
+            db.setSecond(second);
+            db.setSynced(true);
+            db.setPlotted(false);
+            mapper.save(db);
+
+            return null;
+        }
+        @Override
+        public void onPostExecute(Void voids){
+            Toast.makeText(getApplicationContext(), "Data Synced", Toast.LENGTH_SHORT).show();
+            super.onPostExecute(voids);
+        }
     }
 }

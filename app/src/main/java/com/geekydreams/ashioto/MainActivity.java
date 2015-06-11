@@ -17,16 +17,20 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Locale;
 import java.util.TimeZone;
+import java.util.UUID;
 
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.app.Activity;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.amazonaws.auth.CognitoCachingCredentialsProvider;
 import com.amazonaws.regions.Regions;
@@ -34,13 +38,18 @@ import com.amazonaws.services.dynamodbv2.*;
 import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.*;
 import com.amazonaws.services.dynamodbv2.model.*;
 
-public class MainActivity extends Activity {
+public class MainActivity extends AppCompatActivity {
 
+    //Initialize Views
     TextView textResponse;
     EditText editTextAddress, editTextPort, toSend;
-    Button buttonConnect, buttonClear;
+    Button buttonConnect, buttonClear, buttonSend;
+
+    EditText inDB, outDB, appDB;
+    //Amazon variables
     DynamoDBMapper mapper;
 
+    //Strings
     String year;
     String month;
     String date;
@@ -48,17 +57,32 @@ public class MainActivity extends Activity {
     String minute;
     String second;
 
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        editTextAddress = (EditText) findViewById(R.id.address);
-        editTextPort = (EditText) findViewById(R.id.port);
+        CognitoCachingCredentialsProvider credentialsProvider = new CognitoCachingCredentialsProvider(
+                MainActivity.this, // Context
+                "us-east-1:08e41de7-9cb0-40d6-9f04-6f8956ed25bb", // Identity Pool ID
+                Regions.US_EAST_1 // Region
+        );
+        AmazonDynamoDBClient ddbClient = new AmazonDynamoDBClient(credentialsProvider);
+        mapper = new DynamoDBMapper(ddbClient);
+
         buttonConnect = (Button) findViewById(R.id.connect);
         buttonClear = (Button) findViewById(R.id.clear);
-        textResponse = (TextView) findViewById(R.id.response);
+        buttonSend = (Button) findViewById(R.id.sendButton);
+        editTextAddress = (EditText) findViewById(R.id.address);
+        editTextPort = (EditText) findViewById(R.id.port);
         toSend = (EditText) findViewById(R.id.toSend);
+        inDB = (EditText) findViewById(R.id.inSendDB);
+        outDB = (EditText) findViewById(R.id.outSendDB);
+        appDB = (EditText) findViewById(R.id.appSendDB);
+
+        textResponse = (TextView) findViewById(R.id.response);
 
         buttonConnect.setOnClickListener(buttonConnectOnClickListener);
 
@@ -70,59 +94,20 @@ public class MainActivity extends Activity {
             }
         });
         // Initialize the Amazon Cognito credentials provider
-        CognitoCachingCredentialsProvider credentialsProvider = new CognitoCachingCredentialsProvider(
-                MainActivity.this, // Context
-                "us-east-1:08e41de7-9cb0-40d6-9f04-6f8956ed25bb", // Identity Pool ID
-                Regions.US_EAST_1 // Region
-        );
-        AmazonDynamoDBClient ddbClient = new AmazonDynamoDBClient(credentialsProvider);
-        mapper = new DynamoDBMapper(ddbClient);
 
 
-        //Time
-        Calendar calendar = Calendar.getInstance();
-
-        DateFormat yearForm = new SimpleDateFormat("yyyy");
-        DateFormat monthForm = new SimpleDateFormat("MM");
-        DateFormat dateForm = new SimpleDateFormat("dd");
-        DateFormat hourForm = new SimpleDateFormat("HH");
-        DateFormat minuteForm = new SimpleDateFormat("mm");
-        DateFormat secondForm = new SimpleDateFormat("ss");
-        TimeZone timeZone = TimeZone.getTimeZone("IST");
-        yearForm.setTimeZone(timeZone);
-        monthForm.setTimeZone(timeZone);
-        dateForm.setTimeZone(timeZone);
-        hourForm.setTimeZone(timeZone);
-        minuteForm.setTimeZone(timeZone);
-        secondForm.setTimeZone(timeZone);
-        year = yearForm.format(calendar.getTime());
-        month = monthForm.format(calendar.getTime());
-        date = dateForm.format(calendar.getTime());
-        hour = hourForm.format(calendar.getTime());
-        minute = minuteForm.format(calendar.getTime());
-        second = secondForm.format(calendar.getTime());
         //Time Ends
+        buttonSend.setOnClickListener(sendClickListener);
     }
 
-    public String getYear(){
-        return year;
-    }
-    public String getMonth(){
-        return month;
-    }
-    public String getDate(){
-        return date;
-    }
-    public String getHour(){
-        return hour;
-    }
-    public String getMinute(){
-        return minute;
-    }
-    public String getSecond(){
-        return second;
-    }
 
+    OnClickListener sendClickListener = new OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            SyncTask syncTask = new SyncTask();
+            syncTask.execute();
+        }
+    };
     OnClickListener buttonConnectOnClickListener =
             new OnClickListener() {
 
@@ -190,7 +175,68 @@ public class MainActivity extends Activity {
         }
 
     }
-    @DynamoDBTable(tableName = "Ashioto")
+
+    public class SyncTask extends AsyncTask<Void, Void, Void>{
+        @Override
+        protected Void doInBackground(Void... voids) {
+            //Time
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTimeZone(TimeZone.getTimeZone("Asia/Calcutta"));
+            DateFormat yearForm = new SimpleDateFormat("yyyy");
+            DateFormat monthForm = new SimpleDateFormat("MM");
+            DateFormat dateForm = new SimpleDateFormat("dd");
+            DateFormat hourForm = new SimpleDateFormat("HH");
+            DateFormat minuteForm = new SimpleDateFormat("mm");
+            DateFormat secondForm = new SimpleDateFormat("ss");
+            TimeZone timeZone = TimeZone.getTimeZone("Asia/Calcutta");
+            yearForm.setTimeZone(timeZone);
+            monthForm.setTimeZone(timeZone);
+            dateForm.setTimeZone(timeZone);
+            hourForm.setTimeZone(timeZone);
+            minuteForm.setTimeZone(timeZone);
+            secondForm.setTimeZone(timeZone);
+            year = yearForm.format(calendar.getTime());
+            month = monthForm.format(calendar.getTime());
+            date = dateForm.format(calendar.getTime());
+            hour = hourForm.format(calendar.getTime());
+            minute = minuteForm.format(calendar.getTime());
+            second = secondForm.format(calendar.getTime());
+            //End of Time
+            UUID uuid = UUID.randomUUID();
+            String uuidString = uuid.toString();
+            String inFin = inDB.getText().toString(),
+                    outFin = outDB.getText().toString(),
+                    appFin = appDB.getText().toString();
+            Integer inDB = Integer.valueOf(inFin);
+            Integer outDB = Integer.valueOf(outFin);
+
+            Float appDB = Float.valueOf(appFin);
+            Ashioto db = new Ashioto();
+            db.setUuid(uuidString);
+            db.setGateID(1);
+            db.setInCount(inDB);
+            db.setOutCount(outDB);
+            db.setApp(appDB);
+            db.setYear(year);
+            db.setMonth(month);
+            db.setDate(date);
+            db.setHour(hour);
+            db.setMinute(minute);
+            db.setSecond(second);
+            db.setSynced(true);
+            db.setPlotted(false);
+            mapper.save(db);
+
+            return null;
+        }
+        @Override
+        public void onPostExecute(Void voids){
+            Toast.makeText(getApplicationContext(), "Data Synced", Toast.LENGTH_SHORT).show();
+            super.onPostExecute(voids);
+        }
+    }
+
+    @DynamoDBTable(tableName = "Ashioto_test")
     public class Ashioto{
         private String year;
         private String month;
@@ -203,6 +249,7 @@ public class MainActivity extends Activity {
         private int inCount;
         private int outCount;
         private float app;
+        private Boolean synced;
         private Boolean plotted;
 
         //Initialization Attributes
@@ -228,6 +275,13 @@ public class MainActivity extends Activity {
         }
         public void setPlotted(Boolean plotted){
             this.plotted = plotted;
+        }
+        @DynamoDBAttribute(attributeName = "Synced")
+        public Boolean getSynced(){
+            return synced;
+        }
+        public void setSynced(Boolean synced){
+            this.synced = synced;
         }
         @DynamoDBAttribute(attributeName = "In")
         public int getInCount(){
