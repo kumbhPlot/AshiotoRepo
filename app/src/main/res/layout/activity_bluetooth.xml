@@ -19,14 +19,20 @@
             android:layout_height="fill_parent">
 
 
-            <RelativeLayout
+            <android.support.v7.widget.CardView
+                xmlns:card_view="http://schemas.android.com/apk/res-auto"
+                android:layout_margin="20dp"
+                card_view:cardElevation="8dp"
+                card_view:cardBackgroundColor="@color/primary_light"
+                android:layout_centerHorizontal="true"
                 android:id="@+id/InRelative"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+            <RelativeLayout
+                android:padding="20dp"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:layout_centerHorizontal="true"
-                android:layout_marginTop="20dp"
-                android:background="@drawable/counts"
-                android:padding="20dp">
+                android:layout_centerHorizontal="true">
 
 
                 <TextView
@@ -36,11 +42,13 @@
                     android:layout_centerHorizontal="true"
                     android:text="IN"
                     android:textAppearance="?android:attr/textAppearanceLarge"
-                    android:textColor="@color/primary_light"
+                    android:textColor="@color/primary_text"
                     android:textSize="30sp"
                     android:typeface="monospace" />
 
                 <TextView
+                    android:textColor="@color/primary_dark"
+                    android:theme="@style/MyMaterialTheme"
                     android:id="@+id/txtReceive"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -52,15 +60,20 @@
                     android:textSize="28sp"
                     android:typeface="monospace" />
             </RelativeLayout>
-
-            <RelativeLayout
+            </android.support.v7.widget.CardView>
+            <android.support.v7.widget.CardView
+                xmlns:card_view="http://schemas.android.com/apk/res-auto"
+                card_view:cardElevation="8dp"
+                card_view:cardBackgroundColor="@color/primary_light"
                 android:id="@+id/OutRelative"
+                android:layout_centerHorizontal="true"
+                android:layout_margin="20dp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_below="@id/InRelative"
-                android:layout_centerHorizontal="true"
-                android:layout_marginTop="10dp"
-                android:background="@drawable/counts"
+                android:layout_below="@id/InRelative">
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
                 android:padding="20dp">
 
                 <TextView
@@ -70,10 +83,11 @@
                     android:layout_centerHorizontal="true"
                     android:text="OUT"
                     android:textAppearance="?android:attr/textAppearanceLarge"
-                    android:textColor="@color/primary_light"
+                    android:textColor="@color/primary_text"
                     android:textSize="30sp" />
 
                 <TextView
+                    android:textColor="@color/primary_dark"
                     android:id="@+id/txtOut"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -86,16 +100,21 @@
                     android:textSize="28sp"
                     android:typeface="monospace" />
             </RelativeLayout>
+            </android.support.v7.widget.CardView>
 
-
-            <RelativeLayout
+            <android.support.v7.widget.CardView
+                xmlns:card_view="http://schemas.android.com/apk/res-auto"
+                card_view:cardElevation="8dp"
+                card_view:cardBackgroundColor="@color/primary_light"
                 android:id="@+id/DenRelative"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
                 android:layout_below="@id/OutRelative"
                 android:layout_centerHorizontal="true"
-                android:layout_marginTop="10dp"
-                android:background="@drawable/counts"
+                android:layout_margin="20dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
                 android:padding="20dp">
 
                 <TextView
@@ -105,10 +124,11 @@
                     android:layout_centerHorizontal="true"
                     android:text="DENSITY"
                     android:textAppearance="?android:attr/textAppearanceLarge"
-                    android:textColor="@color/primary_light"
+                    android:textColor="@color/primary_text"
                     android:textSize="30sp" />
 
                 <TextView
+                    android:textColor="@color/primary_dark"
                     android:id="@+id/densityView"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -118,7 +138,7 @@
                     android:text="DENSITY"
                     android:textSize="28sp" />
             </RelativeLayout>
-
+            </android.support.v7.widget.CardView>
             <Button
                 android:id="@+id/syncBtn"
                 android:layout_width="wrap_content"

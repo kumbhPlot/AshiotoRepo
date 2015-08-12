@@ -16,6 +16,7 @@ import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -34,8 +35,11 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.snappydb.DBFactory;
+import com.snappydb.SnappydbException;
 
-public class Start extends AppCompatActivity {
+
+public class Start extends AppCompatActivity implements FragmentDrawer.FragmentDrawerListener {
 
     private Button mBtnSearch;
     private Button mBtnConnect;
@@ -57,15 +61,31 @@ public class Start extends AppCompatActivity {
     TextView areaHint;
     public String areaPref = "areaPref";
 
+    FragmentDrawer drawerFragment;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_start);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolhome);
+        toolbar.setTitleTextColor(getResources().getColor(R.color.white));
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
+
+        drawerFragment = (FragmentDrawer) getSupportFragmentManager().findFragmentById(R.id.fragment_navigation_drawer);
+        drawerFragment.setUp(R.id.fragment_navigation_drawer, (DrawerLayout) findViewById(R.id.drawer_layout), toolbar);
+        drawerFragment.setDrawerListener(this);
         // ActivityHelper.initialize(this); //This is to ensure that the rotation persists across activities and not just this one
         SharedPreferences getArea = getSharedPreferences(areaPref, 0);
         float area = getArea.getFloat(areaPref, 0);
         String areaString = String.valueOf(area);
+
+        try {
+            MainActivity.ashiotoDB = DBFactory.open(Start.this, "Ashioto");
+        } catch (SnappydbException e) {
+            e.printStackTrace();
+        }
 
         mBtnSearch = (Button) findViewById(R.id.btnSearch);
 
@@ -217,6 +237,21 @@ public class Start extends AppCompatActivity {
         });
     }
 
+    @Override
+    public void onDrawerItemSelected(View view, int position) {
+        changeActivty(position);
+    }
+    private void changeActivty(int position){
+        switch (position){
+            case 0:
+                Intent intent = new Intent(getApplicationContext(), settings.class);
+                startActivity(intent);
+                break;
+            default:
+                break;
+        }
+    }
+
     /**
      * Searches for paired devices. Doesn't do a scan! Only devices which are paired through Settings->Bluetooth
      * will show up with this. I didn't see any need to re-build the wheel over here
@@ -232,9 +267,9 @@ public class Start extends AppCompatActivity {
             for (BluetoothDevice device : pairedDevices) {
 
                 //check if the devicename starts with HC then only add into the list
-                if (device.getName().startsWith("HC")) {
+//                if (device.getName().startsWith("HC")) {
                     listDevices.add(device);
-                }
+
             }
             return listDevices;
 
