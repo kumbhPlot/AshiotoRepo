@@ -44,6 +44,7 @@ import com.snappydb.SnappydbException;
 
 public class MainActivity extends AppCompatActivity {
 
+
     //Initialize Views
     TextView textResponse;
     EditText editTextAddress, editTextPort, toSend;

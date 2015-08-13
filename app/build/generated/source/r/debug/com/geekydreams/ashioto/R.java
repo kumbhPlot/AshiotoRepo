@@ -232,7 +232,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static final int backgroundTint=0x7f0100d5;
+        public static final int backgroundTint=0x7f0100d2;
         /** <p>Must be one of the following constant values.</p>
 <table>
 <colgroup align="left" />
@@ -246,7 +246,7 @@ containing a value of this type.
 <tr><td><code>screen</code></td><td>15</td><td></td></tr>
 </table>
          */
-        public static final int backgroundTintMode=0x7f0100d6;
+        public static final int backgroundTintMode=0x7f0100d3;
         /** <p>Must be a dimension value, which is a floating point number appended with a unit such as "<code>14.5sp</code>".
 Available units are: px (pixels), dp (density-independent pixels), sp (scaled pixels based on preferred font size),
 in (inches), mm (millimeters).
@@ -849,14 +849,6 @@ theme attribute (in the form
 containing a value of this type.
          */
         public static final int maxButtonHeight=0x7f0100ca;
-        /** <p>Must be an integer value, such as "<code>100</code>".
-<p>This may also be a reference to a resource (in the form
-"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
-theme attribute (in the form
-"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
-containing a value of this type.
-         */
-        public static final int maxValue=0x7f0100d0;
         /** <p>Must be a boolean value, either "<code>true</code>" or "<code>false</code>".
 <p>This may also be a reference to a resource (in the form
 "<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
@@ -875,14 +867,6 @@ theme attribute (in the form
 containing a value of this type.
          */
         public static final int middleBarArrowSize=0x7f010035;
-        /** <p>Must be an integer value, such as "<code>100</code>".
-<p>This may also be a reference to a resource (in the form
-"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
-theme attribute (in the form
-"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
-containing a value of this type.
-         */
-        public static final int minValue=0x7f0100cf;
         /** <p>Must be a reference to another resource, in the form "<code>@[+][<i>package</i>:]<i>type</i>:<i>name</i></code>"
 or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>".
          */
@@ -928,7 +912,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static final int paddingEnd=0x7f0100d3;
+        public static final int paddingEnd=0x7f0100d0;
         /** <p>Must be a dimension value, which is a floating point number appended with a unit such as "<code>14.5sp</code>".
 Available units are: px (pixels), dp (density-independent pixels), sp (scaled pixels based on preferred font size),
 in (inches), mm (millimeters).
@@ -938,7 +922,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static final int paddingStart=0x7f0100d2;
+        public static final int paddingStart=0x7f0100cf;
         /** <p>Must be a reference to another resource, in the form "<code>@[+][<i>package</i>:]<i>type</i>:<i>name</i></code>"
 or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>".
          */
@@ -1039,14 +1023,6 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
 or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>".
          */
         public static final int selectableItemBackgroundBorderless=0x7f01008d;
-        /** <p>Must be a boolean value, either "<code>true</code>" or "<code>false</code>".
-<p>This may also be a reference to a resource (in the form
-"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
-theme attribute (in the form
-"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
-containing a value of this type.
-         */
-        public static final int setWrapSelectorWheel=0x7f0100d1;
         /** <p>Must be one or more (separated by '|') of the following constant values.</p>
 <table>
 <colgroup align="left" />
@@ -1225,7 +1201,7 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
         /** <p>Must be a reference to another resource, in the form "<code>@[+][<i>package</i>:]<i>type</i>:<i>name</i></code>"
 or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>".
          */
-        public static final int theme=0x7f0100d4;
+        public static final int theme=0x7f0100d1;
         /** <p>Must be a dimension value, which is a floating point number appended with a unit such as "<code>14.5sp</code>".
 Available units are: px (pixels), dp (density-independent pixels), sp (scaled pixels based on preferred font size),
 in (inches), mm (millimeters).
@@ -1674,12 +1650,8 @@ containing a value of this type.
         public static final int abc_textfield_search_material=0x7f02003a;
         public static final int counts=0x7f02003b;
         public static final int ic_launcher=0x7f02003c;
-        public static final int logo=0x7f02003d;
-        public static final int logo_hd=0x7f02003e;
-        public static final int logo_low=0x7f02003f;
-        public static final int logo_med=0x7f020040;
-        public static final int notification_template_icon_bg=0x7f020042;
-        public static final int stack=0x7f020041;
+        public static final int notification_template_icon_bg=0x7f02003e;
+        public static final int stack=0x7f02003d;
     }
     public static final class id {
         public static final int DenRelative=0x7f090056;
@@ -6285,65 +6257,6 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
           @attr name com.geekydreams.ashioto:titleTextAppearance
         */
         public static final int Toolbar_titleTextAppearance = 9;
-        /** Attributes that can be used with a VNTNumberPickerPreference.
-           <p>Includes the following attributes:</p>
-           <table>
-           <colgroup align="left" />
-           <colgroup align="left" />
-           <tr><th>Attribute</th><th>Description</th></tr>
-           <tr><td><code>{@link #VNTNumberPickerPreference_maxValue com.geekydreams.ashioto:maxValue}</code></td><td></td></tr>
-           <tr><td><code>{@link #VNTNumberPickerPreference_minValue com.geekydreams.ashioto:minValue}</code></td><td></td></tr>
-           <tr><td><code>{@link #VNTNumberPickerPreference_setWrapSelectorWheel com.geekydreams.ashioto:setWrapSelectorWheel}</code></td><td></td></tr>
-           </table>
-           @see #VNTNumberPickerPreference_maxValue
-           @see #VNTNumberPickerPreference_minValue
-           @see #VNTNumberPickerPreference_setWrapSelectorWheel
-         */
-        public static final int[] VNTNumberPickerPreference = {
-            0x7f0100cf, 0x7f0100d0, 0x7f0100d1
-        };
-        /**
-          <p>This symbol is the offset where the {@link com.geekydreams.ashioto.R.attr#maxValue}
-          attribute's value can be found in the {@link #VNTNumberPickerPreference} array.
-
-
-          <p>Must be an integer value, such as "<code>100</code>".
-<p>This may also be a reference to a resource (in the form
-"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
-theme attribute (in the form
-"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
-containing a value of this type.
-          @attr name com.geekydreams.ashioto:maxValue
-        */
-        public static final int VNTNumberPickerPreference_maxValue = 1;
-        /**
-          <p>This symbol is the offset where the {@link com.geekydreams.ashioto.R.attr#minValue}
-          attribute's value can be found in the {@link #VNTNumberPickerPreference} array.
-
-
-          <p>Must be an integer value, such as "<code>100</code>".
-<p>This may also be a reference to a resource (in the form
-"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
-theme attribute (in the form
-"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
-containing a value of this type.
-          @attr name com.geekydreams.ashioto:minValue
-        */
-        public static final int VNTNumberPickerPreference_minValue = 0;
-        /**
-          <p>This symbol is the offset where the {@link com.geekydreams.ashioto.R.attr#setWrapSelectorWheel}
-          attribute's value can be found in the {@link #VNTNumberPickerPreference} array.
-
-
-          <p>Must be a boolean value, either "<code>true</code>" or "<code>false</code>".
-<p>This may also be a reference to a resource (in the form
-"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
-theme attribute (in the form
-"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
-containing a value of this type.
-          @attr name com.geekydreams.ashioto:setWrapSelectorWheel
-        */
-        public static final int VNTNumberPickerPreference_setWrapSelectorWheel = 2;
         /** Attributes that can be used with a View.
            <p>Includes the following attributes:</p>
            <table>
@@ -6367,8 +6280,8 @@ containing a value of this type.
            @see #View_theme
          */
         public static final int[] View = {
-            0x01010000, 0x010100da, 0x7f0100d2, 0x7f0100d3,
-            0x7f0100d4, 0x7f0100d5, 0x7f0100d6
+            0x01010000, 0x010100da, 0x7f0100cf, 0x7f0100d0,
+            0x7f0100d1, 0x7f0100d2, 0x7f0100d3
         };
         /**
           <p>This symbol is the offset where the {@link android.R.attr#focusable}

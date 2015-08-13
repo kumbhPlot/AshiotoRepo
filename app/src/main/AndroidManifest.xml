@@ -10,10 +10,11 @@
     -
     <application
         android:allowBackup="true"
-        android:icon="@drawable/logo_hd"
+        android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
         android:theme="@style/MyMaterialTheme">
         <activity
+            android:configChanges="keyboardHidden|orientation|screenSize"
             android:name=".Start"
             android:label="@string/app_name"
             android:screenOrientation="portrait">
