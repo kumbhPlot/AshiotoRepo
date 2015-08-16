@@ -3,8 +3,10 @@ package com.geekydreams.ashioto;
 import android.app.Activity;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.support.v4.view.ViewCompat;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -12,8 +14,13 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
+import android.widget.NumberPicker;
 import android.widget.SeekBar;
+
+import com.snappydb.DBFactory;
+import com.snappydb.SnappydbException;
 
 
 public class settings extends AppCompatActivity {
@@ -23,14 +30,22 @@ public class settings extends AppCompatActivity {
     public EditText warn;
     public EditText over;
     public EditText areaView;
+    public NumberPicker numPick;
+    public Button saveBut;
     //Strings
     public String areaPref = "areaPref";
+    public String settingPref = "settings";
     String areaString;
     String savedBefore;
-    String floatString;
     //Ints and floats
     Float areaFloat;
-    //SharedPrefs and editors
+    int normInt;
+    int warnInt;
+    int overInt;
+    int gateInt;
+    //Prefs
+    SharedPreferences settingsPrefs;
+    SharedPreferences.Editor settingsEditor;
 
 
     @Override
@@ -40,18 +55,33 @@ public class settings extends AppCompatActivity {
         SharedPreferences area = getSharedPreferences(areaPref, 0);
         final SharedPreferences.Editor prefsEditor = area.edit();
 
+
+
+        CardView normCard = (CardView) findViewById(R.id.cardNorm);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolset);
+        ViewCompat.setElevation(toolbar, 16);
+        setSupportActionBar(toolbar);
+        ViewCompat.setElevation(normCard, 16);
+
+        saveBut = (Button) findViewById(R.id.saveBut);
+        numPick = (NumberPicker) findViewById(R.id.numPick);
+        numPick.setMinValue(1);
+        numPick.setMaxValue(10);
         seek = (SeekBar) findViewById(R.id.seekBar);
         normal = (EditText) findViewById(R.id.textView3);
         warn = (EditText) findViewById(R.id.editText);
         over = (EditText) findViewById(R.id.editText2);
         areaView = (EditText) findViewById(R.id.areaVal);
 
+        settingsPrefs = getSharedPreferences(settingPref, 0);
+        settingsEditor = settingsPrefs.edit();
         SharedPreferences getArea = getSharedPreferences(areaPref, 0);
         float areaF = getArea.getFloat(areaPref, 0);
         savedBefore = String.valueOf(areaF);
 
         areaView.setText(savedBefore);
 
+        saveBut.setOnClickListener(save);
 
 /*        float savedArea = area.getFloat(areaPref, areaFloat);
 
@@ -93,4 +123,20 @@ public class settings extends AppCompatActivity {
         }
         return super.onOptionsItemSelected(item);
     }
+    View.OnClickListener save = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            gateInt = numPick.getValue();
+            settingsEditor.putInt("gateID", gateInt).apply();
+            areaString = areaView.getText().toString();
+            areaFloat = Float.parseFloat(areaString);
+            settingsEditor.putFloat(areaPref, areaFloat).apply();
+            try {
+                Start.localDB.putInt("gateID", gateInt);
+                Start.localDB.putFloat(areaPref, areaFloat);
+            } catch (SnappydbException e) {
+                e.printStackTrace();
+            }
+        }
+    };
 }

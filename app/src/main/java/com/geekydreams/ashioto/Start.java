@@ -1,9 +1,20 @@
 package com.geekydreams.ashioto;
 
+import java.lang.reflect.Field;
+import java.net.ConnectException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.TimeZone;
 import java.util.UUID;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
@@ -13,9 +24,11 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.graphics.Color;
+import android.net.ConnectivityManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -34,8 +47,34 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.amazonaws.auth.CognitoCachingCredentialsProvider;
+import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBMapper;
+import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBQueryExpression;
+import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.PaginatedQueryList;
+import com.amazonaws.regions.Regions;
+import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient;
+import com.amazonaws.services.dynamodbv2.model.AttributeValue;
+import com.amazonaws.services.dynamodbv2.model.ComparisonOperator;
+import com.amazonaws.services.dynamodbv2.model.Condition;
+import com.snappydb.DB;
+import com.snappydb.DBFactory;
+import com.snappydb.SnappyDB;
+import com.snappydb.SnappydbException;
 
-public class Start extends AppCompatActivity {
+import butterknife.Bind;
+import butterknife.ButterKnife;
+import io.realm.Realm;
+import io.realm.RealmConfiguration;
+import io.realm.RealmResults;
+import io.realm.annotations.RealmModule;
+
+
+public class Start extends AppCompatActivity implements FragmentDrawer.FragmentDrawerListener {
+
+    uploadDB mUploadDB;
+    CognitoCachingCredentialsProvider credentialsProvider1;
+
+    public static DB localDB;
 
     private Button mBtnSearch;
     private Button mBtnConnect;
@@ -57,15 +96,60 @@ public class Start extends AppCompatActivity {
     TextView areaHint;
     public String areaPref = "areaPref";
 
+    FragmentDrawer drawerFragment;
+
+    @RealmModule(classes = {localSave.class})
+    public static class ashiotoModule{
+
+    }
+    public static AmazonDynamoDBClient dbClient;
+    public static DynamoDBMapper mapper;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        mUploadDB = new uploadDB(this);
+        CognitoCachingCredentialsProvider credentialsProvider = new CognitoCachingCredentialsProvider(
+                getApplicationContext(), // Context
+                "us-east-1:08e41de7-9cb0-40d6-9f04-6f8956ed25bb", // Identity Pool ID
+                Regions.US_EAST_1 // Region
+        );
+        dbClient = new AmazonDynamoDBClient(credentialsProvider);
+        mapper = new DynamoDBMapper(dbClient);
 
+        RealmConfiguration configuration = new RealmConfiguration.Builder(getApplicationContext())
+                .name("ashioto.realm")
+                .schemaVersion(1)
+                .setModules(new ashiotoModule())
+                .build();
+        Realm.setDefaultConfiguration(configuration);
+        try {
+            localDB = new SnappyDB.Builder(getApplicationContext())
+                    .name("ashiotoDB")
+                    .build();
+        } catch (SnappydbException e) {
+            e.printStackTrace();
+        }
         setContentView(R.layout.activity_start);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolhome);
+        toolbar.setTitleTextColor(getResources().getColor(R.color.white));
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
+
+        drawerFragment = (FragmentDrawer) getSupportFragmentManager().findFragmentById(R.id.fragment_navigation_drawer);
+        drawerFragment.setUp(R.id.fragment_navigation_drawer, (DrawerLayout) findViewById(R.id.drawer_layout), toolbar);
+        drawerFragment.setDrawerListener(this);
         // ActivityHelper.initialize(this); //This is to ensure that the rotation persists across activities and not just this one
         SharedPreferences getArea = getSharedPreferences(areaPref, 0);
         float area = getArea.getFloat(areaPref, 0);
         String areaString = String.valueOf(area);
+
+        try {
+            MainActivity.ashiotoDB = DBFactory.open(Start.this, "Ashioto");
+        } catch (SnappydbException e) {
+            e.printStackTrace();
+        }
 
         mBtnSearch = (Button) findViewById(R.id.btnSearch);
 
@@ -217,6 +301,21 @@ public class Start extends AppCompatActivity {
         });
     }
 
+    @Override
+    public void onDrawerItemSelected(View view, int position) {
+        changeActivty(position);
+    }
+    private void changeActivty(int position){
+        switch (position){
+            case 0:
+                Intent intent = new Intent(getApplicationContext(), settings.class);
+                startActivity(intent);
+                break;
+            default:
+                break;
+        }
+    }
+
     /**
      * Searches for paired devices. Doesn't do a scan! Only devices which are paired through Settings->Bluetooth
      * will show up with this. I didn't see any need to re-build the wheel over here
@@ -235,6 +334,7 @@ public class Start extends AppCompatActivity {
                 if (device.getName().startsWith("HC")) {
                     listDevices.add(device);
                 }
+
             }
             return listDevices;
 
@@ -344,8 +444,8 @@ public class Start extends AppCompatActivity {
         getMenuInflater().inflate(R.menu.start, menu);
         return true;
     }
-
-    @Override
+    getLastDB mGetLast;
+        @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_settings:
@@ -354,7 +454,152 @@ public class Start extends AppCompatActivity {
             case R.id.action_connect:
                 startActivity(new Intent(Start.this, MainActivity.class));
                 break;
+            case R.id.action_upload:
+                mGetLast = new getLastDB();
+                uploadDB mUpload = new uploadDB(Start.this);
+                mUpload.execute();
+                Log.i("GGG", "Reached");
+                break;
         }
         return super.onOptionsItemSelected(item);
+    }
+    public class uploadDB extends AsyncTask<Void, Void, Void>{
+        Context context;
+        RealmResults<localSave> results;
+        Realm realm;
+        uploadDB(Context ctx){
+            context = ctx;
+            realm = Realm.getInstance(context);
+            results = realm.where(localSave.class).equalTo("synced", false).findAll();
+        }
+        int lastUid = 0;
+
+        String year, month, date, hour, minute, second;
+        ArrayList<Ashioto> ashiotoArrayList = new ArrayList<>();
+        @Override
+        protected Void doInBackground(Void... params) {
+
+            //Time
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTimeZone(TimeZone.getTimeZone("Asia/Calcutta"));
+            DateFormat yearForm = new SimpleDateFormat("yyyy");
+            DateFormat monthForm = new SimpleDateFormat("MM");
+            DateFormat dateForm = new SimpleDateFormat("dd");
+            DateFormat hourForm = new SimpleDateFormat("HH");
+            DateFormat minuteForm = new SimpleDateFormat("mm");
+            DateFormat secondForm = new SimpleDateFormat("ss");
+            TimeZone timeZone = TimeZone.getTimeZone("Asia/Calcutta");
+            yearForm.setTimeZone(timeZone);
+            monthForm.setTimeZone(timeZone);
+            dateForm.setTimeZone(timeZone);
+            hourForm.setTimeZone(timeZone);
+            minuteForm.setTimeZone(timeZone);
+            secondForm.setTimeZone(timeZone);
+            year = yearForm.format(calendar.getTime());
+            month = monthForm.format(calendar.getTime());
+            date = dateForm.format(calendar.getTime());
+            hour = hourForm.format(calendar.getTime());
+            minute = minuteForm.format(calendar.getTime());
+            second = secondForm.format(calendar.getTime());
+            //End of Time
+            try {
+                lastUid = mGetLast.execute().get();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            } catch (ExecutionException e) {
+                e.printStackTrace();
+            }
+            realm.beginTransaction();
+            for (localSave ls : results){
+                Ashioto localSaveAshioto = new Ashioto();
+                localSaveAshioto.setN(lastUid);
+                localSaveAshioto.setUuid(lastUid);
+                localSaveAshioto.setYear(year);
+                localSaveAshioto.setMonth(month);
+                localSaveAshioto.setDate(date);
+                localSaveAshioto.setHour(hour);
+                localSaveAshioto.setMinute(minute);
+                localSaveAshioto.setSecond(second);
+                localSaveAshioto.setVlotted(0);
+                localSaveAshioto.setInCount(ls.getInCount());
+                localSaveAshioto.setOutCount(ls.getOutCount());
+                localSaveAshioto.setSynced(true);
+                ashiotoArrayList.add(localSaveAshioto);
+                ls.setSynced(true);
+                realm.commitTransaction();
+                Log.i("GGG", "SAving");
+                Start.mapper.save(localSaveAshioto);
+            }
+            realm.close();
+            return null;
+        }
+        @Override
+        protected void onPostExecute(Void voids){
+            super.onPostExecute(voids);
+            Toast.makeText(getApplicationContext(), "Synced to database", Toast.LENGTH_LONG).show();
+        }
+
+    }
+    public class getLastDB extends AsyncTask<Void, Void, Integer> {
+        int finUUID = 0;
+        Context context;
+        AmazonDynamoDBClient dbClient;
+        DynamoDBMapper mMapper;
+        getLastDB(){
+            credentialsProvider1 = new CognitoCachingCredentialsProvider(Start.this,
+                    "us-east-1:08e41de7-9cb0-40d6-9f04-6f8956ed25bb", // Identity Pool ID
+                    Regions.US_EAST_1 // Region
+            );
+            AmazonDynamoDBClient dynamoDBClient = new AmazonDynamoDBClient(credentialsProvider1);
+            mMapper = new DynamoDBMapper(dynamoDBClient);
+        }
+
+        @Override
+        protected Integer doInBackground(Void... params) {
+            Ashioto findLast = new Ashioto();
+            findLast.setVlotted(1);
+            Integer n = 1;
+            Integer Plotted = 1;
+
+            Condition hash = new Condition()
+                    .withComparisonOperator(ComparisonOperator.EQ.toString())
+                    .withAttributeValueList(new AttributeValue().withS(Plotted.toString()));
+
+            Condition range = new Condition()
+                    .withComparisonOperator(ComparisonOperator.GE.toString())
+                    .withAttributeValueList(new AttributeValue().withN(n.toString()));
+
+            HashMap<String, Condition> hashMap = new HashMap<>();
+            hashMap.put("Plotted", hash);
+
+            DynamoDBQueryExpression queryExpression = new DynamoDBQueryExpression()
+                    .withHashKeyValues(findLast)
+                    .withIndexName("Plotted-n-index")
+                    .withRangeKeyCondition("n", range)
+                    .withScanIndexForward(false)
+                    .withLimit(1)
+                    .withConsistentRead(false);
+
+            PaginatedQueryList res = mMapper.query(Ashioto.class, queryExpression);
+            if (res.size() > 0) {
+                Object gx = res.get(0);
+                Map saf = null;
+                try {
+                    saf = MainActivity.getFieldNamesAndValues(gx, false);
+                } catch (IllegalAccessException e) {
+                    e.printStackTrace();
+                }
+                if (saf != null) {
+                    Log.i("NNNN", saf.toString());
+                    Integer f = (Integer) saf.get("uuid");
+                    finUUID = f+1;
+                    Log.i("NNNN", f.toString());
+                }
+            }
+            else{
+                finUUID = 1;
+            }
+            return finUUID;
+        }
     }
 }

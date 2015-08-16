@@ -7,6 +7,7 @@ import java.io.InputStream;
 import java.io.InterruptedIOException;
 import java.io.PrintWriter;
 import java.lang.reflect.Array;
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.Socket;
@@ -14,6 +15,9 @@ import java.net.UnknownHostException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.TimeZone;
 import java.util.UUID;
 
@@ -23,13 +27,16 @@ import android.app.ProgressDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -43,12 +50,31 @@ import com.amazonaws.auth.CognitoCachingCredentialsProvider;
 import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBAttribute;
 import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBHashKey;
 import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBIndexHashKey;
+import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBIndexRangeKey;
 import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBMapper;
+import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBQueryExpression;
 import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBTable;
+import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.PaginatedQueryList;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient;
+import com.amazonaws.services.dynamodbv2.model.AttributeValue;
+import com.amazonaws.services.dynamodbv2.model.ComparisonOperator;
+import com.amazonaws.services.dynamodbv2.model.Condition;
+import com.amazonaws.services.dynamodbv2.model.GetItemRequest;
+import com.amazonaws.services.dynamodbv2.model.QueryRequest;
+import com.amazonaws.services.dynamodbv2.model.QueryResult;
+import com.snappydb.DB;
+import com.snappydb.DBFactory;
+import com.snappydb.SnappydbException;
 
-public class bluetooth extends ActionBarActivity {
+import butterknife.Bind;
+import butterknife.ButterKnife;
+import io.realm.Realm;
+
+public class bluetooth extends AppCompatActivity {
+
+    @Bind(R.id.saveLocal) Button saveLocalButton;
+
 
     float appFin;
     float area;
@@ -61,6 +87,7 @@ public class bluetooth extends ActionBarActivity {
 
     private boolean mIsUserInitiatedDisconnect = false;
 
+    public Integer finUUID;
     // All controls here
     private TextView areaHint;
     private TextView mTxtReceive;
@@ -97,6 +124,16 @@ public class bluetooth extends ActionBarActivity {
     String minute;
     String second;
 
+    //Ints
+    int ud;
+    int gateId;
+
+    public String u = "uuidP";
+
+    //Shared Prefs
+    SharedPreferences uuidPrefs;
+    SharedPreferences.Editor uuidPrefsEditor;
+
     Handler mHandler = new Handler() {
         public void handleMessage(android.os.Message msg) {
             switch (msg.what) {
@@ -112,27 +149,32 @@ public class bluetooth extends ActionBarActivity {
         ;
     };
 
+    DB localDb;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_bluetooth);
-
+        ButterKnife.bind(this);
+        try {
+            localDb = DBFactory.open(getApplication(), "ashiotoDB");
+        } catch (SnappydbException e) {
+            e.printStackTrace();
+        }
+        SharedPreferences getGateID = getSharedPreferences("settings", 0);
+        gateId = getGateID.getInt("gateID", 1);
         CognitoCachingCredentialsProvider credentialsProvider = new CognitoCachingCredentialsProvider(
                 bluetooth.this, // Context
                 "us-east-1:08e41de7-9cb0-40d6-9f04-6f8956ed25bb", // Identity Pool ID
                 Regions.US_EAST_1 // Region
         );
-        AmazonDynamoDBClient ddbClient = new AmazonDynamoDBClient(credentialsProvider);
+        final AmazonDynamoDBClient ddbClient = new AmazonDynamoDBClient(credentialsProvider);
         mapper = new DynamoDBMapper(ddbClient);
 
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.tooltooth);
         setSupportActionBar(toolbar);
         ActivityHelper.initialize(this);
-        inRelative = (RelativeLayout) findViewById(R.id.InRelative);
-        outRelative = (RelativeLayout) findViewById(R.id.OutRelative);
-        denRelative = (RelativeLayout) findViewById(R.id.DenRelative);
 
         Intent intent = getIntent();
         Bundle b = intent.getExtras();
@@ -146,12 +188,40 @@ public class bluetooth extends ActionBarActivity {
 
                     @Override
                     public void onClick(View arg0) {
-                        SyncTask task  = new SyncTask();
-                        task.execute();
+/*
+                        QueryRequest request = new QueryRequest()
+                                .withTableName("kumbha5")
+                                .withScanIndexForward(true)
+                                .withAttributesToGet("uuid")
+                                .withLimit(1);
+
+                        QueryResult result = ddbClient.query(request);
+
+                        List g = result.getItems();
+
+                        String lastUUID = g.get(0).toString();
+                        Integer h = Integer.parseInt(lastUUID);
+                        Toast.makeText(getApplicationContext(), lastUUID, Toast.LENGTH_LONG).show();
+*/
+
+                        String uid = String.valueOf(ud);
+                        SyncTask syncTask = new SyncTask(uid, ud);
+                        syncTask.execute();
                     }
                 };
         syncBtn.setOnClickListener(buttonConnectOnClickListener);
-
+        uuidPrefs = getSharedPreferences(u, 0);
+        uuidPrefsEditor = uuidPrefs.edit();
+        saveLocalButton.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                int cur = uuidPrefs.getInt("uuid", 0);
+                int nxt = cur + 1;
+                uuidPrefsEditor.putInt("uuid", nxt).apply();
+                localSaveTask saveTask = new localSaveTask(nxt);
+                saveTask.execute();
+            }
+        });
 
         //GEt Area
         //SharedPreferences
@@ -349,7 +419,7 @@ public class bluetooth extends ActionBarActivity {
                             });
 
                         }
-                    } else if (mBTSocket.equals(null)) {
+                    } else if (mBTSocket == null) {
                         Toast.makeText(bluetooth.this, "Disconnected", Toast.LENGTH_SHORT).show();
                     }
                     Thread.sleep(100);
@@ -548,7 +618,7 @@ public class bluetooth extends ActionBarActivity {
         }
 
     }
-    @DynamoDBTable(tableName = "Ashioto_test")
+    @DynamoDBTable(tableName = "test_gate1")
     public class Ashioto{
         private String year;
         private String month;
@@ -556,28 +626,44 @@ public class bluetooth extends ActionBarActivity {
         private String hour;
         private String minute;
         private String second;
-        private String uuid;
+        private int uuid;
+        private int n;
         private int gateID;
         private int inCount;
         private int outCount;
+        private int vlotted;
         private float app;
         private Boolean synced;
         private Boolean plotted;
 
         //Initialization Attributes
         @DynamoDBHashKey(attributeName = "uuid")
-        public String getUuid(){
+        public int getUuid(){
             return uuid;
         }
-        public void setUuid(String uuid){
+        public void setUuid(int uuid){
             this.uuid = uuid;
         }
-        @DynamoDBIndexHashKey(attributeName = "GateID")
+        @DynamoDBIndexHashKey(attributeName = "Plotted", globalSecondaryIndexName = "Plotted-n-index")
+        public int getVlotted(){
+            return vlotted;
+        }
+        public void setVlotted(int vlotted){
+            this.vlotted = vlotted;
+        }
+        @DynamoDBAttribute(attributeName = "GateID")
         public int getGateID(){
             return gateID;
         }
         public void setGateID(int gateID){
             this.gateID = gateID;
+        }
+        @DynamoDBIndexRangeKey(attributeName = "n", globalSecondaryIndexName = "Plotted-n-index")
+        public int getN(){
+            return n;
+        }
+        public void setN(int n){
+            this.n = n;
         }
         //End of initialization values
         //Resource Attributes
@@ -663,8 +749,74 @@ public class bluetooth extends ActionBarActivity {
         //End of Timestamp Attributes
     }
     public class SyncTask extends AsyncTask<Void, Void, Void>{
+        String uuidString;
+        int no;
+        SyncTask(String uid, int n){
+            uuidString = uid;
+            no = n;
+        }
         @Override
         protected Void doInBackground(Void... voids) {
+            com.geekydreams.ashioto.Ashioto findLast = new com.geekydreams.ashioto.Ashioto();
+            findLast.setVlotted(1);
+            Integer n = 1;
+            Integer Plotted = 1;
+
+            Condition hash = new Condition()
+                    .withComparisonOperator(ComparisonOperator.EQ.toString())
+                    .withAttributeValueList(new AttributeValue().withS(Plotted.toString()));
+
+            Condition range = new Condition()
+                    .withComparisonOperator(ComparisonOperator.GE.toString())
+                    .withAttributeValueList(new AttributeValue().withN(n.toString()));
+
+            HashMap<String, Condition> hashMap = new HashMap<>();
+            hashMap.put("Plotted", hash);
+
+            DynamoDBQueryExpression queryExpression = new DynamoDBQueryExpression()
+                    .withHashKeyValues(findLast)
+                    .withIndexName("Plotted-n-index")
+                    .withRangeKeyCondition("n", range)
+                    .withScanIndexForward(false)
+                    .withLimit(1)
+                    .withConsistentRead(false);
+
+            PaginatedQueryList res = mapper.query(com.geekydreams.ashioto.Ashioto.class, queryExpression);
+            if (res.size() > 0) {
+                Object gx = res.get(0);
+                Map saf = null;
+
+                Field field;
+                try {
+                    saf = MainActivity.getFieldNamesAndValues(gx, false);
+                } catch (IllegalAccessException e) {
+                    e.printStackTrace();
+                }
+                if (saf != null) {
+                    Log.i("NNNN", saf.toString());
+                    Integer f = (Integer) saf.get("uuid");
+                    finUUID = f+1;
+                    Log.i("NNNN", f.toString());
+                }
+            }
+            else{
+                finUUID = 1;
+            }
+
+                /*try {
+                    field = cl.getField("uuid");
+                    int o = field.getInt(gx);
+                    Toast.makeText(MainActivity.this, String.valueOf(o), Toast.LENGTH_LONG).show();
+                } catch (NoSuchFieldException e) {
+                    e.printStackTrace();
+                } catch (IllegalAccessException e) {
+                    e.printStackTrace();
+                }*/
+
+            String ho = res.toString();
+//            Log.i("Res", gx.toString());
+
+
             //Time
             Calendar calendar = Calendar.getInstance();
             calendar.setTimeZone(TimeZone.getTimeZone("Asia/Calcutta"));
@@ -694,8 +846,9 @@ public class bluetooth extends ActionBarActivity {
             Integer outDB = Integer.valueOf(outFin);
             Float appDB = appFin;
             Ashioto db = new Ashioto();
-            db.setUuid(uuidString);
-            db.setGateID(1);
+            db.setUuid(finUUID);
+            db.setN(finUUID);
+            db.setGateID(finUUID);
             db.setInCount(inDB);
             db.setOutCount(outDB);
             db.setApp(appDB);
@@ -709,12 +862,69 @@ public class bluetooth extends ActionBarActivity {
             db.setPlotted(false);
             mapper.save(db);
 
+
             return null;
         }
         @Override
         public void onPostExecute(Void voids){
             Toast.makeText(getApplicationContext(), "Data Synced", Toast.LENGTH_SHORT).show();
             super.onPostExecute(voids);
+        }
+    }
+    public class localSaveTask extends AsyncTask<Void, Void, Void>{
+
+        int no;
+        localSaveTask(int number){
+            no = number;
+        }
+        @Override
+        protected Void doInBackground(Void... params) {
+            //Time
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTimeZone(TimeZone.getTimeZone("Asia/Calcutta"));
+            DateFormat yearForm = new SimpleDateFormat("yyyy");
+            DateFormat monthForm = new SimpleDateFormat("MM");
+            DateFormat dateForm = new SimpleDateFormat("dd");
+            DateFormat hourForm = new SimpleDateFormat("HH");
+            DateFormat minuteForm = new SimpleDateFormat("mm");
+            DateFormat secondForm = new SimpleDateFormat("ss");
+            TimeZone timeZone = TimeZone.getTimeZone("Asia/Calcutta");
+            yearForm.setTimeZone(timeZone);
+            monthForm.setTimeZone(timeZone);
+            dateForm.setTimeZone(timeZone);
+            hourForm.setTimeZone(timeZone);
+            minuteForm.setTimeZone(timeZone);
+            secondForm.setTimeZone(timeZone);
+            String mYear = yearForm.format(calendar.getTime());
+            String mMonth = monthForm.format(calendar.getTime());
+            String mDate = dateForm.format(calendar.getTime());
+            String mHour = hourForm.format(calendar.getTime());
+            String mMinute = minuteForm.format(calendar.getTime());
+            String mSecond = secondForm.format(calendar.getTime());
+            Integer inDB = Integer.valueOf(inFin);
+            Integer outDB = Integer.valueOf(outFin);
+            Realm mRealm;
+            mRealm = Realm.getDefaultInstance();
+            mRealm.beginTransaction();
+            localSave toCommit = mRealm.createObject(localSave.class);
+            toCommit.setUid(no);
+            toCommit.setInCount(inDB);
+            toCommit.setOutCount(outDB);
+            toCommit.setYear(mYear);
+            toCommit.setMonth(mMonth);
+            toCommit.setDate(mDate);
+            toCommit.setHour(mHour);
+            toCommit.setMinute(mMinute);
+            toCommit.setSecond(mSecond);
+            mRealm.commitTransaction();
+
+
+            return null;
+        }
+        @Override
+        public void onPostExecute(Void voids){
+            super.onPostExecute(voids);
+            Toast.makeText(bluetooth.this, "Saved Loally: " + String.valueOf(no), Toast.LENGTH_LONG).show();
         }
     }
 }

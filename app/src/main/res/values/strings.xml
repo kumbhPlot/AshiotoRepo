@@ -31,5 +31,15 @@
     <string name="delaysettings">Delay</string>
     <string name="title_activity_home">home</string>
     <string name="title_activity_library_start">library_start</string>
+    <string name="drawer_close">Close</string>
+    <string name="drawer_open">Open</string>
+    
+    <string name="nav_item_parameters">Parameters</string>
+    <string name="nav_item_connect">Connect</string>
+
+    <string-array name="nav_drawer_labels">
+        <item>@string/nav_item_parameters</item>
+        <item>@string/nav_item_connect</item>
+    </string-array>
 
 </resources>

@@ -3,13 +3,11 @@ apply plugin: 'com.android.application'
 android {
     compileSdkVersion 22
     buildToolsVersion "21.1.2"
-
     defaultConfig {
         applicationId "com.geekydreams.ashioto"
-        minSdkVersion 14
+        minSdkVersion 15
         targetSdkVersion 22
     }
-
     buildTypes {
         release {
             minifyEnabled false
@@ -17,11 +15,26 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
         }
     }
+    productFlavors {
+    }
+    packagingOptions{
+        exclude 'META-INF/services/javax.annotation.processing.Processor'
+    }
+}
+
+repositories {
+    jcenter()
 }
 
 dependencies {
+    compile 'io.realm:realm-android:0.82.1'
+    compile 'com.jakewharton:butterknife:7.0.1'
     compile 'com.android.support:appcompat-v7:22.2.0'
     compile 'com.amazonaws:aws-android-sdk-core:2.2.1'
     compile 'com.amazonaws:aws-android-sdk-ddb:2.2.1'
     compile 'com.amazonaws:aws-android-sdk-ddb-mapper:2.2.1'
+    compile 'com.android.support:recyclerview-v7:21.0.3'
+    compile 'com.android.support:cardview-v7:21.0.3'
+    compile 'com.snappydb:snappydb-lib:0.5.2'
+    compile 'com.esotericsoftware.kryo:kryo:2.24.0'
 }

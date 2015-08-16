@@ -5,26 +5,27 @@ package com.geekydreams.ashioto;
  */
 
 import java.io.ByteArrayOutputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.Date;
-import java.util.Locale;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.TimeZone;
-import java.util.UUID;
+import java.util.concurrent.atomic.AtomicInteger;
 
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.app.Activity;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -37,8 +38,20 @@ import com.amazonaws.regions.Regions;
 import com.amazonaws.services.dynamodbv2.*;
 import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.*;
 import com.amazonaws.services.dynamodbv2.model.*;
+import com.snappydb.DB;
+import com.snappydb.DBFactory;
+import com.snappydb.SnappyDB;
+import com.snappydb.SnappydbException;
+
+import butterknife.Bind;
+import butterknife.ButterKnife;
+import io.realm.Realm;
 
 public class MainActivity extends AppCompatActivity {
+
+
+
+    @Bind(R.id.localDBButton) Button saveLocalButton;
 
     //Initialize Views
     TextView textResponse;
@@ -47,7 +60,11 @@ public class MainActivity extends AppCompatActivity {
 
     EditText inDB, outDB, appDB;
     //Amazon variables
-    DynamoDBMapper mapper;
+    public static DynamoDBMapper mapper;
+
+    //Ints
+    int ud;
+    int gateID;
 
     //Strings
     String year;
@@ -56,20 +73,116 @@ public class MainActivity extends AppCompatActivity {
     String hour;
     String minute;
     String second;
+    AtomicInteger seq = new AtomicInteger();
+    public String u = "uuidP";
+    String sa;
 
+    //Shared Prefs
+    SharedPreferences uuidPrefs;
+    SharedPreferences.Editor uuidPrefsEditor;
+
+
+    public static AmazonDynamoDBClient ddbClient;
+    QueryResult result;
+
+    public static DB ashiotoDB;
+
+    int gateCode;
+
+    Integer finUUID;
 
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        ButterKnife.bind(this);
 
+        SharedPreferences id = getSharedPreferences("settings", 0);
+
+        try {
+            ashiotoDB = DBFactory.open(MainActivity.this, "ashiotoDB");
+        } catch (SnappydbException e) {
+            e.printStackTrace();
+        }
+
+        try {
+                if (Start.localDB.exists("gateID")) {
+                try {
+                    gateCode = Start.localDB.getInt("gateID");
+                } catch (SnappydbException e) {
+                    e.printStackTrace();
+                }
+            }
+        } catch (SnappydbException e) {
+            e.printStackTrace();
+        }
+
+        saveLocalButton.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //Time
+                Calendar calendar = Calendar.getInstance();
+                calendar.setTimeZone(TimeZone.getTimeZone("Asia/Calcutta"));
+                DateFormat yearForm = new SimpleDateFormat("yyyy");
+                DateFormat monthForm = new SimpleDateFormat("MM");
+                DateFormat dateForm = new SimpleDateFormat("dd");
+                DateFormat hourForm = new SimpleDateFormat("HH");
+                DateFormat minuteForm = new SimpleDateFormat("mm");
+                DateFormat secondForm = new SimpleDateFormat("ss");
+                TimeZone timeZone = TimeZone.getTimeZone("Asia/Calcutta");
+                yearForm.setTimeZone(timeZone);
+                monthForm.setTimeZone(timeZone);
+                dateForm.setTimeZone(timeZone);
+                hourForm.setTimeZone(timeZone);
+                minuteForm.setTimeZone(timeZone);
+                secondForm.setTimeZone(timeZone);
+                year = yearForm.format(calendar.getTime());
+                month = monthForm.format(calendar.getTime());
+                date = dateForm.format(calendar.getTime());
+                hour = hourForm.format(calendar.getTime());
+                minute = minuteForm.format(calendar.getTime());
+                second = secondForm.format(calendar.getTime());
+
+
+                Realm realm  = Realm.getDefaultInstance();
+                int cur = uuidPrefs.getInt("uuid", 0);
+                int nxt = cur + 1;
+                uuidPrefsEditor.putInt("uuid", nxt).apply();
+                String inFin = inDB.getText().toString(),
+                        outFin = outDB.getText().toString(),
+                        appFin = appDB.getText().toString();
+                Float appDB = Float.valueOf(appFin);
+                Integer inDB = Integer.valueOf(inFin);
+                Integer outDB = Integer.valueOf(outFin);
+
+                realm.beginTransaction();
+                localSave toCommit = realm.createObject(localSave.class);
+                toCommit.setUid(nxt);
+                toCommit.setInCount(inDB);
+                toCommit.setOutCount(outDB);
+                toCommit.setYear(year);
+                toCommit.setMonth(month);
+                toCommit.setDate(date);
+                toCommit.setHour(hour);
+                toCommit.setMinute(minute);
+                toCommit.setSecond(second);
+                toCommit.setSynced(false);
+                toCommit.setApp(appDB);
+                realm.commitTransaction();
+                realm.close();
+            }
+        });
+
+        gateID = id.getInt("gateID", 1);
+        uuidPrefs = getSharedPreferences(u, 0);
+        uuidPrefsEditor = uuidPrefs.edit();
         CognitoCachingCredentialsProvider credentialsProvider = new CognitoCachingCredentialsProvider(
                 MainActivity.this, // Context
                 "us-east-1:08e41de7-9cb0-40d6-9f04-6f8956ed25bb", // Identity Pool ID
                 Regions.US_EAST_1 // Region
         );
-        AmazonDynamoDBClient ddbClient = new AmazonDynamoDBClient(credentialsProvider);
+        ddbClient = new AmazonDynamoDBClient(credentialsProvider);
         mapper = new DynamoDBMapper(ddbClient);
 
         buttonConnect = (Button) findViewById(R.id.connect);
@@ -98,14 +211,21 @@ public class MainActivity extends AppCompatActivity {
 
         //Time Ends
         buttonSend.setOnClickListener(sendClickListener);
+
     }
 
 
     OnClickListener sendClickListener = new OnClickListener() {
         @Override
         public void onClick(View view) {
-            SyncTask syncTask = new SyncTask();
+            int cur = uuidPrefs.getInt("uuid", 0);
+            int nxt = cur + 1;
+            uuidPrefsEditor.putInt("uuid", nxt);
+
+            String uid = String.valueOf(ud);
+            SyncTask syncTask = new SyncTask(uid, ud);
             syncTask.execute();
+            System.gc();
         }
     };
     OnClickListener buttonConnectOnClickListener =
@@ -126,7 +246,7 @@ public class MainActivity extends AppCompatActivity {
             };
 
 
-    public class MyClientTask extends AsyncTask<Void, Void, Void> {
+    public class MyClientTask extends AsyncTask<Void, Void, Void>{
 
         String dstAddress;
         int dstPort;
@@ -177,8 +297,76 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public class SyncTask extends AsyncTask<Void, Void, Void>{
+        String uuidString;
+        int no;
+        SyncTask(String uid, int n){
+            uuidString = uid;
+            no = n;
+        }
         @Override
         protected Void doInBackground(Void... voids) {
+
+            Ashioto findLast = new Ashioto();
+            findLast.setVlotted(1);
+            Integer n = 1;
+            Integer Plotted = 1;
+
+            Condition hash = new Condition()
+                    .withComparisonOperator(ComparisonOperator.EQ.toString())
+                    .withAttributeValueList(new AttributeValue().withS(Plotted.toString()));
+
+            Condition range = new Condition()
+                    .withComparisonOperator(ComparisonOperator.GE.toString())
+                    .withAttributeValueList(new AttributeValue().withN(n.toString()));
+
+            HashMap<String, Condition> hashMap = new HashMap<>();
+            hashMap.put("Plotted", hash);
+
+            DynamoDBQueryExpression queryExpression = new DynamoDBQueryExpression()
+                    .withHashKeyValues(findLast)
+                    .withIndexName("Plotted-n-index")
+                    .withRangeKeyCondition("n", range)
+                    .withScanIndexForward(false)
+                    .withLimit(1)
+                    .withConsistentRead(false);
+
+            PaginatedQueryList res = mapper.query(Ashioto.class, queryExpression);
+            if (res.size() > 0) {
+                Object gx = res.get(0);
+                Map saf = null;
+
+                Field field;
+                try {
+                    saf = getFieldNamesAndValues(gx, false);
+                } catch (IllegalAccessException e) {
+                    e.printStackTrace();
+                }
+                if (saf != null) {
+                    Log.i("NNNN", saf.toString());
+                    Integer f = (Integer) saf.get("uuid");
+                    finUUID = f+1;
+                    Log.i("NNNN", f.toString());
+                }
+            }
+            else{
+                finUUID = 1;
+            }
+
+
+                /*try {
+                    field = cl.getField("uuid");
+                    int o = field.getInt(gx);
+                    Toast.makeText(MainActivity.this, String.valueOf(o), Toast.LENGTH_LONG).show();
+                } catch (NoSuchFieldException e) {
+                    e.printStackTrace();
+                } catch (IllegalAccessException e) {
+                    e.printStackTrace();
+                }*/
+
+            String ho = res.toString();
+//            Log.i("Res", gx.toString());
+
+
             //Time
             Calendar calendar = Calendar.getInstance();
             calendar.setTimeZone(TimeZone.getTimeZone("Asia/Calcutta"));
@@ -202,8 +390,6 @@ public class MainActivity extends AppCompatActivity {
             minute = minuteForm.format(calendar.getTime());
             second = secondForm.format(calendar.getTime());
             //End of Time
-            UUID uuid = UUID.randomUUID();
-            String uuidString = uuid.toString();
             String inFin = inDB.getText().toString(),
                     outFin = outDB.getText().toString(),
                     appFin = appDB.getText().toString();
@@ -212,8 +398,9 @@ public class MainActivity extends AppCompatActivity {
 
             Float appDB = Float.valueOf(appFin);
             Ashioto db = new Ashioto();
-            db.setUuid(uuidString);
-            db.setGateID(1);
+            db.setUuid(finUUID);
+            db.setN(finUUID);
+            db.setGateID(gateCode);
             db.setInCount(inDB);
             db.setOutCount(outDB);
             db.setApp(appDB);
@@ -224,7 +411,8 @@ public class MainActivity extends AppCompatActivity {
             db.setMinute(minute);
             db.setSecond(second);
             db.setSynced(true);
-            db.setPlotted(false);
+//            db.setPlotted(false);
+            db.setVlotted(0);
             mapper.save(db);
 
             return null;
@@ -235,119 +423,71 @@ public class MainActivity extends AppCompatActivity {
             super.onPostExecute(voids);
         }
     }
-
-    @DynamoDBTable(tableName = "Ashioto_test")
-    public class Ashioto{
-        private String year;
-        private String month;
-        private String date;
-        private String hour;
-        private String minute;
-        private String second;
-        private String uuid;
-        private int gateID;
-        private int inCount;
-        private int outCount;
-        private float app;
-        private Boolean synced;
-        private Boolean plotted;
-
-        //Initialization Attributes
-        @DynamoDBHashKey(attributeName = "uuid")
-        public String getUuid(){
-            return uuid;
+    public static Map<String, Object> getFieldNamesAndValues(final Object obj, boolean publicOnly)
+            throws IllegalArgumentException,IllegalAccessException
+    {
+        Class<? extends Object> c1 = obj.getClass();
+        Map<String, Object> map = new HashMap<String, Object>();
+        Field[] fields = c1.getDeclaredFields();
+        for (int i = 0; i < fields.length; i++) {
+            String name = fields[i].getName();
+            if (publicOnly) {
+                if(Modifier.isPublic(fields[i].getModifiers())) {
+                    Object value = fields[i].get(obj);
+                    map.put(name, value);
+                }
+            }
+            else {
+                fields[i].setAccessible(true);
+                Object value = fields[i].get(obj);
+                map.put(name, value);
+            }
         }
-        public void setUuid(String uuid){
-            this.uuid = uuid;
-        }
-        @DynamoDBIndexHashKey(attributeName = "GateID")
-        public int getGateID(){
-            return gateID;
-        }
-        public void setGateID(int gateID){
-            this.gateID = gateID;
-        }
-        //End of initialization values
-        //Resource Attributes
-        @DynamoDBAttribute(attributeName = "Plotted")
-        public Boolean getPlotted(){
-            return plotted;
-        }
-        public void setPlotted(Boolean plotted){
-            this.plotted = plotted;
-        }
-        @DynamoDBAttribute(attributeName = "Synced")
-        public Boolean getSynced(){
-            return synced;
-        }
-        public void setSynced(Boolean synced){
-            this.synced = synced;
-        }
-        @DynamoDBAttribute(attributeName = "In")
-        public int getInCount(){
-            return inCount;
-        }
-        public void setInCount(int inCount){
-            this.inCount = inCount;
-        }
-        @DynamoDBAttribute(attributeName = "Out")
-        public int getOutCount(){
-            return outCount;
-        }
-        public void setOutCount(int outCount){
-            this.outCount = outCount;
-        }
-        @DynamoDBAttribute(attributeName = "APP")
-        public float getApp(){
-            return app;
-        }
-        public void setApp(float app){
-            this.app = app;
-        }
-        //End of Resource Attributes
-        //Timestamp Attributes
-        @DynamoDBAttribute(attributeName = "Year")
-        public String getYear(){
-            return year;
-        }
-        public void setYear(String year){
-            this.year = year;
-        }
-        @DynamoDBAttribute(attributeName = "Month")
-        public String getMonth(){
-            return month;
-        }
-        public void setMonth(String month){
-            this.month = month;
-        }
-        @DynamoDBAttribute(attributeName = "Date")
-        public String getDate(){
-            return date;
-        }
-        public void setDate(String date){
-            this.date = date;
-        }
-        @DynamoDBAttribute(attributeName = "Hour")
-        public String getHour(){
-            return hour;
-        }
-        public void setHour(String hour){
-            this.hour = hour;
-        }
-        @DynamoDBAttribute(attributeName = "Minute")
-        public String getMinute(){
-            return minute;
-        }
-        public void setMinute(String minute){
-            this.minute = minute;
-        }
-        @DynamoDBAttribute(attributeName = "Second")
-        public String getSecond(){
-            return second;
-        }
-        public void setSecond(String second){
-            this.second = second;
-        }
-        //End of Timestamp Attributes
+        return map;
     }
+/*
+    public class localSaveTask extends AsyncTask<Void, Void, Void>{
+        realm = Realm.getInstance(MainActivity.this);
+        int no;
+        localSaveTask(int number){
+            no = number;
+        }
+        @Override
+        protected Void doInBackground(Void... params) {
+            String inFin = inDB.getText().toString(),
+                    outFin = outDB.getText().toString();
+            Integer inDB = Integer.valueOf(inFin);
+            Integer outDB = Integer.valueOf(outFin);
+
+            realm.beginTransaction();
+            localSave toCommit = realm.createObject(localSave.class);
+            toCommit.setUid(no);
+            toCommit.setInCount(inDB);
+            toCommit.setOutCount(outDB);
+            toCommit.setYear(year);
+            toCommit.setMonth(month);
+            toCommit.setDate(date);
+            toCommit.setHour(hour);
+            toCommit.setMinute(minute);
+            toCommit.setSecond(second);
+            realm.commitTransaction();
+
+
+            return null;
+        }
+        @Override
+        public void onPostExecute(Void voids){
+            super.onPostExecute(voids);
+            Toast.makeText(MainActivity.this, "Saved Locally: " + String.valueOf(no), Toast.LENGTH_LONG).show();
+        }
+    }
+*/
+
+    Thread dbThread = new Thread(new Runnable() {
+        Realm realm = Realm.getDefaultInstance();
+        @Override
+        public void run() {
+
+        }
+    });
 }
