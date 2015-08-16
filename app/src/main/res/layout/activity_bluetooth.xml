@@ -146,6 +146,13 @@
                 android:layout_below="@id/DenRelative"
                 android:layout_centerHorizontal="true"
                 android:text="Sync" />
+            <Button
+                android:layout_below="@id/syncBtn"
+                android:layout_centerHorizontal="true"
+                android:id="@+id/saveLocal"
+                android:text="Save Locally"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
         </RelativeLayout>
     </ScrollView>
 </RelativeLayout>

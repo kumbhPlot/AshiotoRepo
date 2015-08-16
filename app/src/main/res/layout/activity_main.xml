@@ -85,4 +85,9 @@
         android:id="@+id/sendButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
+    <Button
+        android:text="Save Locally"
+        android:id="@+id/localDBButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
 </LinearLayout>

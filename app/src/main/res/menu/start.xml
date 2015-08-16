@@ -2,13 +2,20 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <group>
-        <item android:id="@+id/action_settings"
-            android:title="Parameters"
+        <item
+            android:id="@+id/action_settings"
             android:orderInCategory="100"
+            android:title="Parameters"
             app:showAsAction="never" />
-        <item android:id="@+id/action_connect"
-            android:title="Connect"
+        <item
+            android:id="@+id/action_connect"
             android:orderInCategory="200"
-            app:showAsAction="never"/>
+            android:title="Connect"
+            app:showAsAction="never" />
+        <item
+            android:id="@+id/action_upload"
+            android:orderInCategory="300"
+            android:title="Upload"
+            app:showAsAction="never" />
     </group>
 </menu>

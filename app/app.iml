@@ -87,6 +87,7 @@
     <orderEntry type="jdk" jdkName="Android API 22 Platform (1)" jdkType="Android SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" exported="" name="aws-android-sdk-core-2.2.1" level="project" />
+    <orderEntry type="library" exported="" name="butterknife-7.0.1" level="project" />
     <orderEntry type="library" exported="" name="gson-2.2.4" level="project" />
     <orderEntry type="library" exported="" name="aws-android-sdk-ddb-2.2.1" level="project" />
     <orderEntry type="library" exported="" name="support-annotations-22.2.0" level="project" />
@@ -100,5 +101,6 @@
     <orderEntry type="library" exported="" name="aws-android-sdk-s3-2.2.1" level="project" />
     <orderEntry type="library" exported="" name="minlog-1.2" level="project" />
     <orderEntry type="library" exported="" name="appcompat-v7-22.2.0" level="project" />
+    <orderEntry type="library" exported="" name="realm-android-0.82.1" level="project" />
   </component>
 </module>

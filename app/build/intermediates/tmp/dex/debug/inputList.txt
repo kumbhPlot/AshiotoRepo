@@ -4,6 +4,7 @@
 /home/geek/AshiotoRepo/app/build/intermediates/pre-dexed/debug/classes-3ea201388ed2f83088f90d8e298b364c3aac0591.jar
 /home/geek/AshiotoRepo/app/build/intermediates/pre-dexed/debug/classes-a51c4f89e3cd5893148c3f3cf35623d5c0de61df.jar
 /home/geek/AshiotoRepo/app/build/intermediates/pre-dexed/debug/objenesis-2.1-6752e512e0c656f0b44f6155bab84d6b595ec3a8.jar
+/home/geek/AshiotoRepo/app/build/intermediates/pre-dexed/debug/butterknife-7.0.1-9af2f063e4bf4341c4f12492cea9161c71f162a3.jar
 /home/geek/AshiotoRepo/app/build/intermediates/pre-dexed/debug/gson-2.2.4-49b8963fe18ea8248e50633678e022a502773717.jar
 /home/geek/AshiotoRepo/app/build/intermediates/pre-dexed/debug/aws-android-sdk-ddb-mapper-2.2.1-8c2efc5f1238c5c6d07c61dadb9635e82e3bb216.jar
 /home/geek/AshiotoRepo/app/build/intermediates/pre-dexed/debug/aws-android-sdk-ddb-2.2.1-6a5b53acbb3dc149294e91f240f96d1e69ffda83.jar
@@ -14,3 +15,4 @@
 /home/geek/AshiotoRepo/app/build/intermediates/pre-dexed/debug/aws-android-sdk-s3-2.2.1-f9c9d7c0c45f3c68f4575e2c71a5f01b3a5dc5b0.jar
 /home/geek/AshiotoRepo/app/build/intermediates/pre-dexed/debug/classes-714a7924f1501cc510d924ae5c81057ce6d5ed09.jar
 /home/geek/AshiotoRepo/app/build/intermediates/pre-dexed/debug/classes-019eea02021d0d49b81e29414d96e8a541bbe73f.jar
+/home/geek/AshiotoRepo/app/build/intermediates/pre-dexed/debug/realm-android-0.82.1-246052b10a7c9f1290ab2da607327e8ad8639309.jar

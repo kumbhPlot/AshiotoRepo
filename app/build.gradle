@@ -17,6 +17,9 @@ android {
     }
     productFlavors {
     }
+    packagingOptions{
+        exclude 'META-INF/services/javax.annotation.processing.Processor'
+    }
 }
 
 repositories {
@@ -24,6 +27,8 @@ repositories {
 }
 
 dependencies {
+    compile 'io.realm:realm-android:0.82.1'
+    compile 'com.jakewharton:butterknife:7.0.1'
     compile 'com.android.support:appcompat-v7:22.2.0'
     compile 'com.amazonaws:aws-android-sdk-core:2.2.1'
     compile 'com.amazonaws:aws-android-sdk-ddb:2.2.1'

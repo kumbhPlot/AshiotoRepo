@@ -37,6 +37,13 @@
         <dex dex="/home/geek/AshiotoRepo/app/build/intermediates/pre-dexed/debug/classes-019eea02021d0d49b81e29414d96e8a541bbe73f.jar" />
     </item>
     <item
+        jar="/home/geek/.gradle/caches/modules-2/files-2.1/io.realm/realm-android/0.82.1/3e4f47bc60063111a375200f866192bf821efa93/realm-android-0.82.1.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="3e4f47bc60063111a375200f866192bf821efa93">
+        <dex dex="/home/geek/AshiotoRepo/app/build/intermediates/pre-dexed/debug/realm-android-0.82.1-246052b10a7c9f1290ab2da607327e8ad8639309.jar" />
+    </item>
+    <item
         jar="/home/geek/.gradle/caches/modules-2/files-2.1/com.amazonaws/aws-android-sdk-ddb-mapper/2.2.1/c9fb38143222c4e9dccfaa546f75972f7c0241d3/aws-android-sdk-ddb-mapper-2.2.1.jar"
         jumboMode="false"
         revision="21.1.2"
@@ -86,13 +93,6 @@
         <dex dex="/home/geek/AshiotoRepo/app/build/intermediates/pre-dexed/debug/kryo-2.24.0-a8a8ae5c5f11fc9e6bf51162e59ec38bdb5f054c.jar" />
     </item>
     <item
-        jar="/home/geek/.gradle/caches/modules-2/files-2.1/com.amazonaws/aws-android-sdk-ddb/2.2.1/c6867508527ad8f0e86c55459b958350409f371a/aws-android-sdk-ddb-2.2.1.jar"
-        jumboMode="false"
-        revision="21.1.2"
-        sha1="c6867508527ad8f0e86c55459b958350409f371a">
-        <dex dex="/home/geek/AshiotoRepo/app/build/intermediates/pre-dexed/debug/aws-android-sdk-ddb-2.2.1-6a5b53acbb3dc149294e91f240f96d1e69ffda83.jar" />
-    </item>
-    <item
         jar="/home/geek/AshiotoRepo/app/build/intermediates/exploded-aar/com.snappydb/snappydb-lib/0.5.2/classes.jar"
         jumboMode="false"
         revision="21.1.2"
@@ -100,11 +100,18 @@
         <dex dex="/home/geek/AshiotoRepo/app/build/intermediates/pre-dexed/debug/classes-3ea201388ed2f83088f90d8e298b364c3aac0591.jar" />
     </item>
     <item
-        jar="/home/geek/AshiotoRepo/app/build/intermediates/exploded-aar/com.vanniktech/vntnumberpickerpreference/0.1.1-SNAPSHOT/classes.jar"
+        jar="/home/geek/.gradle/caches/modules-2/files-2.1/com.amazonaws/aws-android-sdk-ddb/2.2.1/c6867508527ad8f0e86c55459b958350409f371a/aws-android-sdk-ddb-2.2.1.jar"
         jumboMode="false"
         revision="21.1.2"
-        sha1="32435d55d7b5f9814604fbe55aeeccd2cbcb3a7e">
-        <dex dex="/home/geek/AshiotoRepo/app/build/intermediates/pre-dexed/debug/classes-9fa0b4862e39db1a55a48eb77e3d348986c8bca8.jar" />
+        sha1="c6867508527ad8f0e86c55459b958350409f371a">
+        <dex dex="/home/geek/AshiotoRepo/app/build/intermediates/pre-dexed/debug/aws-android-sdk-ddb-2.2.1-6a5b53acbb3dc149294e91f240f96d1e69ffda83.jar" />
+    </item>
+    <item
+        jar="/home/geek/.gradle/caches/modules-2/files-2.1/com.jakewharton/butterknife/7.0.1/d5d13ea991eab0252e3710e5df3d6a9d4b21d461/butterknife-7.0.1.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="d5d13ea991eab0252e3710e5df3d6a9d4b21d461">
+        <dex dex="/home/geek/AshiotoRepo/app/build/intermediates/pre-dexed/debug/butterknife-7.0.1-9af2f063e4bf4341c4f12492cea9161c71f162a3.jar" />
     </item>
     <item
         jar="/home/geek/.gradle/caches/modules-2/files-2.1/org.objenesis/objenesis/2.1/87c0ea803b69252868d09308b4618f766f135a96/objenesis-2.1.jar"

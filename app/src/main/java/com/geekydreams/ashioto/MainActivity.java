@@ -40,10 +40,18 @@ import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.*;
 import com.amazonaws.services.dynamodbv2.model.*;
 import com.snappydb.DB;
 import com.snappydb.DBFactory;
+import com.snappydb.SnappyDB;
 import com.snappydb.SnappydbException;
+
+import butterknife.Bind;
+import butterknife.ButterKnife;
+import io.realm.Realm;
 
 public class MainActivity extends AppCompatActivity {
 
+
+
+    @Bind(R.id.localDBButton) Button saveLocalButton;
 
     //Initialize Views
     TextView textResponse;
@@ -52,7 +60,7 @@ public class MainActivity extends AppCompatActivity {
 
     EditText inDB, outDB, appDB;
     //Amazon variables
-    DynamoDBMapper mapper;
+    public static DynamoDBMapper mapper;
 
     //Ints
     int ud;
@@ -74,7 +82,7 @@ public class MainActivity extends AppCompatActivity {
     SharedPreferences.Editor uuidPrefsEditor;
 
 
-    AmazonDynamoDBClient ddbClient;
+    public static AmazonDynamoDBClient ddbClient;
     QueryResult result;
 
     public static DB ashiotoDB;
@@ -83,16 +91,25 @@ public class MainActivity extends AppCompatActivity {
 
     Integer finUUID;
 
+
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        ButterKnife.bind(this);
+
         SharedPreferences id = getSharedPreferences("settings", 0);
 
         try {
-                if (MainActivity.ashiotoDB.exists("gateID")) {
+            ashiotoDB = DBFactory.open(MainActivity.this, "ashiotoDB");
+        } catch (SnappydbException e) {
+            e.printStackTrace();
+        }
+
+        try {
+                if (Start.localDB.exists("gateID")) {
                 try {
-                    gateCode = MainActivity.ashiotoDB.getInt("gateID");
+                    gateCode = Start.localDB.getInt("gateID");
                 } catch (SnappydbException e) {
                     e.printStackTrace();
                 }
@@ -100,6 +117,62 @@ public class MainActivity extends AppCompatActivity {
         } catch (SnappydbException e) {
             e.printStackTrace();
         }
+
+        saveLocalButton.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //Time
+                Calendar calendar = Calendar.getInstance();
+                calendar.setTimeZone(TimeZone.getTimeZone("Asia/Calcutta"));
+                DateFormat yearForm = new SimpleDateFormat("yyyy");
+                DateFormat monthForm = new SimpleDateFormat("MM");
+                DateFormat dateForm = new SimpleDateFormat("dd");
+                DateFormat hourForm = new SimpleDateFormat("HH");
+                DateFormat minuteForm = new SimpleDateFormat("mm");
+                DateFormat secondForm = new SimpleDateFormat("ss");
+                TimeZone timeZone = TimeZone.getTimeZone("Asia/Calcutta");
+                yearForm.setTimeZone(timeZone);
+                monthForm.setTimeZone(timeZone);
+                dateForm.setTimeZone(timeZone);
+                hourForm.setTimeZone(timeZone);
+                minuteForm.setTimeZone(timeZone);
+                secondForm.setTimeZone(timeZone);
+                year = yearForm.format(calendar.getTime());
+                month = monthForm.format(calendar.getTime());
+                date = dateForm.format(calendar.getTime());
+                hour = hourForm.format(calendar.getTime());
+                minute = minuteForm.format(calendar.getTime());
+                second = secondForm.format(calendar.getTime());
+
+
+                Realm realm  = Realm.getDefaultInstance();
+                int cur = uuidPrefs.getInt("uuid", 0);
+                int nxt = cur + 1;
+                uuidPrefsEditor.putInt("uuid", nxt).apply();
+                String inFin = inDB.getText().toString(),
+                        outFin = outDB.getText().toString(),
+                        appFin = appDB.getText().toString();
+                Float appDB = Float.valueOf(appFin);
+                Integer inDB = Integer.valueOf(inFin);
+                Integer outDB = Integer.valueOf(outFin);
+
+                realm.beginTransaction();
+                localSave toCommit = realm.createObject(localSave.class);
+                toCommit.setUid(nxt);
+                toCommit.setInCount(inDB);
+                toCommit.setOutCount(outDB);
+                toCommit.setYear(year);
+                toCommit.setMonth(month);
+                toCommit.setDate(date);
+                toCommit.setHour(hour);
+                toCommit.setMinute(minute);
+                toCommit.setSecond(second);
+                toCommit.setSynced(false);
+                toCommit.setApp(appDB);
+                realm.commitTransaction();
+                realm.close();
+            }
+        });
 
         gateID = id.getInt("gateID", 1);
         uuidPrefs = getSharedPreferences(u, 0);
@@ -139,17 +212,15 @@ public class MainActivity extends AppCompatActivity {
         //Time Ends
         buttonSend.setOnClickListener(sendClickListener);
 
-        //Get previous commit
-        ud = uuidPrefs.getInt("n", 0);
     }
 
 
     OnClickListener sendClickListener = new OnClickListener() {
         @Override
         public void onClick(View view) {
-//            int nxt = seq.incrementAndGet();
-            ud += 1;
-            uuidPrefsEditor.putInt("n", ud).apply();
+            int cur = uuidPrefs.getInt("uuid", 0);
+            int nxt = cur + 1;
+            uuidPrefsEditor.putInt("uuid", nxt);
 
             String uid = String.valueOf(ud);
             SyncTask syncTask = new SyncTask(uid, ud);
@@ -260,21 +331,27 @@ public class MainActivity extends AppCompatActivity {
                     .withConsistentRead(false);
 
             PaginatedQueryList res = mapper.query(Ashioto.class, queryExpression);
-            Object gx = res.get(0);
-            Map saf = null;
+            if (res.size() > 0) {
+                Object gx = res.get(0);
+                Map saf = null;
 
-            Field field;
-            try {
-                saf = getFieldNamesAndValues(gx, false);
-            } catch (IllegalAccessException e) {
-                e.printStackTrace();
+                Field field;
+                try {
+                    saf = getFieldNamesAndValues(gx, false);
+                } catch (IllegalAccessException e) {
+                    e.printStackTrace();
+                }
+                if (saf != null) {
+                    Log.i("NNNN", saf.toString());
+                    Integer f = (Integer) saf.get("uuid");
+                    finUUID = f+1;
+                    Log.i("NNNN", f.toString());
+                }
             }
-            if (saf != null) {
-                Log.i("NNNN", saf.toString());
-                Integer f = (Integer) saf.get("uuid");
-                finUUID = f+1;
-                Log.i("NNNN", f.toString());
+            else{
+                finUUID = 1;
             }
+
 
                 /*try {
                     field = cl.getField("uuid");
@@ -368,5 +445,49 @@ public class MainActivity extends AppCompatActivity {
         }
         return map;
     }
+/*
+    public class localSaveTask extends AsyncTask<Void, Void, Void>{
+        realm = Realm.getInstance(MainActivity.this);
+        int no;
+        localSaveTask(int number){
+            no = number;
+        }
+        @Override
+        protected Void doInBackground(Void... params) {
+            String inFin = inDB.getText().toString(),
+                    outFin = outDB.getText().toString();
+            Integer inDB = Integer.valueOf(inFin);
+            Integer outDB = Integer.valueOf(outFin);
 
+            realm.beginTransaction();
+            localSave toCommit = realm.createObject(localSave.class);
+            toCommit.setUid(no);
+            toCommit.setInCount(inDB);
+            toCommit.setOutCount(outDB);
+            toCommit.setYear(year);
+            toCommit.setMonth(month);
+            toCommit.setDate(date);
+            toCommit.setHour(hour);
+            toCommit.setMinute(minute);
+            toCommit.setSecond(second);
+            realm.commitTransaction();
+
+
+            return null;
+        }
+        @Override
+        public void onPostExecute(Void voids){
+            super.onPostExecute(voids);
+            Toast.makeText(MainActivity.this, "Saved Locally: " + String.valueOf(no), Toast.LENGTH_LONG).show();
+        }
+    }
+*/
+
+    Thread dbThread = new Thread(new Runnable() {
+        Realm realm = Realm.getDefaultInstance();
+        @Override
+        public void run() {
+
+        }
+    });
 }

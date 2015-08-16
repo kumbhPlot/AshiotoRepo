@@ -27,12 +27,14 @@ import android.app.ProgressDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
@@ -61,8 +63,17 @@ import com.amazonaws.services.dynamodbv2.model.Condition;
 import com.amazonaws.services.dynamodbv2.model.GetItemRequest;
 import com.amazonaws.services.dynamodbv2.model.QueryRequest;
 import com.amazonaws.services.dynamodbv2.model.QueryResult;
+import com.snappydb.DB;
+import com.snappydb.DBFactory;
+import com.snappydb.SnappydbException;
 
-public class bluetooth extends ActionBarActivity {
+import butterknife.Bind;
+import butterknife.ButterKnife;
+import io.realm.Realm;
+
+public class bluetooth extends AppCompatActivity {
+
+    @Bind(R.id.saveLocal) Button saveLocalButton;
 
 
     float appFin;
@@ -138,12 +149,18 @@ public class bluetooth extends ActionBarActivity {
         ;
     };
 
+    DB localDb;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_bluetooth);
-
+        ButterKnife.bind(this);
+        try {
+            localDb = DBFactory.open(getApplication(), "ashiotoDB");
+        } catch (SnappydbException e) {
+            e.printStackTrace();
+        }
         SharedPreferences getGateID = getSharedPreferences("settings", 0);
         gateId = getGateID.getInt("gateID", 1);
         CognitoCachingCredentialsProvider credentialsProvider = new CognitoCachingCredentialsProvider(
@@ -171,8 +188,6 @@ public class bluetooth extends ActionBarActivity {
 
                     @Override
                     public void onClick(View arg0) {
-                        ud += 1;
-                        uuidPrefsEditor.putInt("n", ud).apply();
 /*
                         QueryRequest request = new QueryRequest()
                                 .withTableName("kumbha5")
@@ -195,7 +210,18 @@ public class bluetooth extends ActionBarActivity {
                     }
                 };
         syncBtn.setOnClickListener(buttonConnectOnClickListener);
-
+        uuidPrefs = getSharedPreferences(u, 0);
+        uuidPrefsEditor = uuidPrefs.edit();
+        saveLocalButton.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                int cur = uuidPrefs.getInt("uuid", 0);
+                int nxt = cur + 1;
+                uuidPrefsEditor.putInt("uuid", nxt).apply();
+                localSaveTask saveTask = new localSaveTask(nxt);
+                saveTask.execute();
+            }
+        });
 
         //GEt Area
         //SharedPreferences
@@ -618,7 +644,7 @@ public class bluetooth extends ActionBarActivity {
         public void setUuid(int uuid){
             this.uuid = uuid;
         }
-        @DynamoDBIndexHashKey(attributeName = "Plotted")
+        @DynamoDBIndexHashKey(attributeName = "Plotted", globalSecondaryIndexName = "Plotted-n-index")
         public int getVlotted(){
             return vlotted;
         }
@@ -632,7 +658,7 @@ public class bluetooth extends ActionBarActivity {
         public void setGateID(int gateID){
             this.gateID = gateID;
         }
-        @DynamoDBIndexRangeKey(attributeName = "n")
+        @DynamoDBIndexRangeKey(attributeName = "n", globalSecondaryIndexName = "Plotted-n-index")
         public int getN(){
             return n;
         }
@@ -756,20 +782,25 @@ public class bluetooth extends ActionBarActivity {
                     .withConsistentRead(false);
 
             PaginatedQueryList res = mapper.query(com.geekydreams.ashioto.Ashioto.class, queryExpression);
-            Object gx = res.get(0);
-            Map saf = null;
+            if (res.size() > 0) {
+                Object gx = res.get(0);
+                Map saf = null;
 
-            Field field;
-            try {
-                saf = MainActivity.getFieldNamesAndValues(gx, false);
-            } catch (IllegalAccessException e) {
-                e.printStackTrace();
+                Field field;
+                try {
+                    saf = MainActivity.getFieldNamesAndValues(gx, false);
+                } catch (IllegalAccessException e) {
+                    e.printStackTrace();
+                }
+                if (saf != null) {
+                    Log.i("NNNN", saf.toString());
+                    Integer f = (Integer) saf.get("uuid");
+                    finUUID = f+1;
+                    Log.i("NNNN", f.toString());
+                }
             }
-            if (saf != null) {
-                Log.i("NNNN", saf.toString());
-                Integer f = (Integer) saf.get("uuid");
-                finUUID = f+1;
-                Log.i("NNNN", f.toString());
+            else{
+                finUUID = 1;
             }
 
                 /*try {
@@ -838,6 +869,62 @@ public class bluetooth extends ActionBarActivity {
         public void onPostExecute(Void voids){
             Toast.makeText(getApplicationContext(), "Data Synced", Toast.LENGTH_SHORT).show();
             super.onPostExecute(voids);
+        }
+    }
+    public class localSaveTask extends AsyncTask<Void, Void, Void>{
+
+        int no;
+        localSaveTask(int number){
+            no = number;
+        }
+        @Override
+        protected Void doInBackground(Void... params) {
+            //Time
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTimeZone(TimeZone.getTimeZone("Asia/Calcutta"));
+            DateFormat yearForm = new SimpleDateFormat("yyyy");
+            DateFormat monthForm = new SimpleDateFormat("MM");
+            DateFormat dateForm = new SimpleDateFormat("dd");
+            DateFormat hourForm = new SimpleDateFormat("HH");
+            DateFormat minuteForm = new SimpleDateFormat("mm");
+            DateFormat secondForm = new SimpleDateFormat("ss");
+            TimeZone timeZone = TimeZone.getTimeZone("Asia/Calcutta");
+            yearForm.setTimeZone(timeZone);
+            monthForm.setTimeZone(timeZone);
+            dateForm.setTimeZone(timeZone);
+            hourForm.setTimeZone(timeZone);
+            minuteForm.setTimeZone(timeZone);
+            secondForm.setTimeZone(timeZone);
+            String mYear = yearForm.format(calendar.getTime());
+            String mMonth = monthForm.format(calendar.getTime());
+            String mDate = dateForm.format(calendar.getTime());
+            String mHour = hourForm.format(calendar.getTime());
+            String mMinute = minuteForm.format(calendar.getTime());
+            String mSecond = secondForm.format(calendar.getTime());
+            Integer inDB = Integer.valueOf(inFin);
+            Integer outDB = Integer.valueOf(outFin);
+            Realm mRealm;
+            mRealm = Realm.getDefaultInstance();
+            mRealm.beginTransaction();
+            localSave toCommit = mRealm.createObject(localSave.class);
+            toCommit.setUid(no);
+            toCommit.setInCount(inDB);
+            toCommit.setOutCount(outDB);
+            toCommit.setYear(mYear);
+            toCommit.setMonth(mMonth);
+            toCommit.setDate(mDate);
+            toCommit.setHour(mHour);
+            toCommit.setMinute(mMinute);
+            toCommit.setSecond(mSecond);
+            mRealm.commitTransaction();
+
+
+            return null;
+        }
+        @Override
+        public void onPostExecute(Void voids){
+            super.onPostExecute(voids);
+            Toast.makeText(bluetooth.this, "Saved Loally: " + String.valueOf(no), Toast.LENGTH_LONG).show();
         }
     }
 }

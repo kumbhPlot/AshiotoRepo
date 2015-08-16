@@ -43,7 +43,6 @@ public class settings extends AppCompatActivity {
     int warnInt;
     int overInt;
     int gateInt;
-    int gateCode;
     //Prefs
     SharedPreferences settingsPrefs;
     SharedPreferences.Editor settingsEditor;
@@ -57,17 +56,6 @@ public class settings extends AppCompatActivity {
         final SharedPreferences.Editor prefsEditor = area.edit();
 
 
-        try {
-            if (MainActivity.ashiotoDB.exists("gateID")) {
-                try {
-                    gateCode = MainActivity.ashiotoDB.getInt("gateID");
-                } catch (SnappydbException e) {
-                    e.printStackTrace();
-                }
-            }
-        } catch (SnappydbException e) {
-            e.printStackTrace();
-        }
 
         CardView normCard = (CardView) findViewById(R.id.cardNorm);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolset);
@@ -144,8 +132,8 @@ public class settings extends AppCompatActivity {
             areaFloat = Float.parseFloat(areaString);
             settingsEditor.putFloat(areaPref, areaFloat).apply();
             try {
-                MainActivity.ashiotoDB.putInt("gateID", gateInt);
-                MainActivity.ashiotoDB.putFloat(areaPref, areaFloat);
+                Start.localDB.putInt("gateID", gateInt);
+                Start.localDB.putFloat(areaPref, areaFloat);
             } catch (SnappydbException e) {
                 e.printStackTrace();
             }
