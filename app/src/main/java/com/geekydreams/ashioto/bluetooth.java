@@ -128,6 +128,7 @@ public class bluetooth extends AppCompatActivity {
     int ud;
     int gateId;
     int gateCode;
+    String lat,longi;
 
     public String u = "uuidP";
 
@@ -175,6 +176,9 @@ public class bluetooth extends AppCompatActivity {
         }
         SharedPreferences getGateID = getSharedPreferences("settings", 0);
         gateId = getGateID.getInt("gateID", 1);
+        lat = getGateID.getString("lat", "0.000");
+        longi = getGateID.getString("long", "0.000");
+
         CognitoCachingCredentialsProvider credentialsProvider = new CognitoCachingCredentialsProvider(
                 bluetooth.this, // Context
                 "us-east-1:08e41de7-9cb0-40d6-9f04-6f8956ed25bb", // Identity Pool ID
@@ -790,6 +794,8 @@ public class bluetooth extends AppCompatActivity {
             db.setTimestamp(timestampFinal);
             db.setInCount(inDB);
             db.setOutCount(outDB);
+            db.setLattitude(lat);
+            db.setLongitude(longi);
             mapper.save(db);
             return null;
         }
