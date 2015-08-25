@@ -95,7 +95,7 @@ public class Start extends AppCompatActivity implements FragmentDrawer.FragmentD
 
     TextView areaHint;
     public String areaPref = "areaPref";
-
+    int gateCode;
     FragmentDrawer drawerFragment;
 
     @RealmModule(classes = {localSave.class})
@@ -109,7 +109,23 @@ public class Start extends AppCompatActivity implements FragmentDrawer.FragmentD
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        try {
+            localDB = DBFactory.open(Start.this, "ashiotoDB");
+        } catch (SnappydbException e) {
+            e.printStackTrace();
+        }
         mUploadDB = new uploadDB(this);
+        try {
+            if (Start.localDB.exists("gateID")) {
+                try {
+                    gateCode = Start.localDB.getInt("gateID");
+                } catch (SnappydbException e) {
+                    e.printStackTrace();
+                }
+            }
+        } catch (SnappydbException e) {
+            e.printStackTrace();
+        }
         CognitoCachingCredentialsProvider credentialsProvider = new CognitoCachingCredentialsProvider(
                 getApplicationContext(), // Context
                 "us-east-1:08e41de7-9cb0-40d6-9f04-6f8956ed25bb", // Identity Pool ID
@@ -255,12 +271,17 @@ public class Start extends AppCompatActivity implements FragmentDrawer.FragmentD
                 mBufferSize = Integer.parseInt(bufSize);
 
                 String orientation = prefs.getString("prefOrientation", "Null");
-                if (orientation.equals("Landscape")) {
-                    setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
-                } else if (orientation.equals("Portrait")) {
-                    setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-                } else if (orientation.equals("Auto")) {
-                    setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_FULL_SENSOR);
+                assert orientation != null;
+                switch (orientation) {
+                    case "Landscape":
+                        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+                        break;
+                    case "Portrait":
+                        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+                        break;
+                    case "Auto":
+                        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_FULL_SENSOR);
+                        break;
                 }
                 break;
             default:
@@ -269,20 +290,12 @@ public class Start extends AppCompatActivity implements FragmentDrawer.FragmentD
         super.onActivityResult(requestCode, resultCode, data);
     }
 
-    /**
-     * Quick way to call the Toast
-     *
-     * @param str
-     */
+
     private void msg(String str) {
         Toast.makeText(getApplicationContext(), str, Toast.LENGTH_SHORT).show();
     }
 
-    /**
-     * Initialize the List adapter
-     *
-     * @param objects
-     */
+
     private void initList(List<BluetoothDevice> objects) {
         final MyAdapter adapter = new MyAdapter(getApplicationContext(), R.layout.list_item, R.id.lstContent, objects);
         mLstDevices.setAdapter(adapter);
@@ -327,7 +340,7 @@ public class Start extends AppCompatActivity implements FragmentDrawer.FragmentD
         @Override
         protected List<BluetoothDevice> doInBackground(Void... params) {
             Set<BluetoothDevice> pairedDevices = mBTAdapter.getBondedDevices();
-            List<BluetoothDevice> listDevices = new ArrayList<BluetoothDevice>();
+            List<BluetoothDevice> listDevices = new ArrayList<>();
             for (BluetoothDevice device : pairedDevices) {
 
                 //check if the devicename starts with HC then only add into the list
@@ -444,7 +457,6 @@ public class Start extends AppCompatActivity implements FragmentDrawer.FragmentD
         getMenuInflater().inflate(R.menu.start, menu);
         return true;
     }
-    getLastDB mGetLast;
         @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
@@ -455,7 +467,6 @@ public class Start extends AppCompatActivity implements FragmentDrawer.FragmentD
                 startActivity(new Intent(Start.this, MainActivity.class));
                 break;
             case R.id.action_upload:
-                mGetLast = new getLastDB();
                 uploadDB mUpload = new uploadDB(Start.this);
                 mUpload.execute();
                 Log.i("GGG", "Reached");
@@ -502,28 +513,14 @@ public class Start extends AppCompatActivity implements FragmentDrawer.FragmentD
             minute = minuteForm.format(calendar.getTime());
             second = secondForm.format(calendar.getTime());
             //End of Time
-            try {
-                lastUid = mGetLast.execute().get();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            } catch (ExecutionException e) {
-                e.printStackTrace();
-            }
             realm.beginTransaction();
             for (localSave ls : results){
                 Ashioto localSaveAshioto = new Ashioto();
-                localSaveAshioto.setN(lastUid);
-                localSaveAshioto.setUuid(lastUid);
-                localSaveAshioto.setYear(year);
-                localSaveAshioto.setMonth(month);
-                localSaveAshioto.setDate(date);
-                localSaveAshioto.setHour(hour);
-                localSaveAshioto.setMinute(minute);
-                localSaveAshioto.setSecond(second);
-                localSaveAshioto.setVlotted(0);
+                String timestampFinal = year+"/"+month+"/"+date+" "+hour+":"+minute+":"+second;
+                localSaveAshioto.setTimestamp(timestampFinal);
                 localSaveAshioto.setInCount(ls.getInCount());
                 localSaveAshioto.setOutCount(ls.getOutCount());
-                localSaveAshioto.setSynced(true);
+                localSaveAshioto.setGateID(gateCode);
                 ashiotoArrayList.add(localSaveAshioto);
                 ls.setSynced(true);
                 realm.commitTransaction();
@@ -539,67 +536,5 @@ public class Start extends AppCompatActivity implements FragmentDrawer.FragmentD
             Toast.makeText(getApplicationContext(), "Synced to database", Toast.LENGTH_LONG).show();
         }
 
-    }
-    public class getLastDB extends AsyncTask<Void, Void, Integer> {
-        int finUUID = 0;
-        Context context;
-        AmazonDynamoDBClient dbClient;
-        DynamoDBMapper mMapper;
-        getLastDB(){
-            credentialsProvider1 = new CognitoCachingCredentialsProvider(Start.this,
-                    "us-east-1:08e41de7-9cb0-40d6-9f04-6f8956ed25bb", // Identity Pool ID
-                    Regions.US_EAST_1 // Region
-            );
-            AmazonDynamoDBClient dynamoDBClient = new AmazonDynamoDBClient(credentialsProvider1);
-            mMapper = new DynamoDBMapper(dynamoDBClient);
-        }
-
-        @Override
-        protected Integer doInBackground(Void... params) {
-            Ashioto findLast = new Ashioto();
-            findLast.setVlotted(1);
-            Integer n = 1;
-            Integer Plotted = 1;
-
-            Condition hash = new Condition()
-                    .withComparisonOperator(ComparisonOperator.EQ.toString())
-                    .withAttributeValueList(new AttributeValue().withS(Plotted.toString()));
-
-            Condition range = new Condition()
-                    .withComparisonOperator(ComparisonOperator.GE.toString())
-                    .withAttributeValueList(new AttributeValue().withN(n.toString()));
-
-            HashMap<String, Condition> hashMap = new HashMap<>();
-            hashMap.put("Plotted", hash);
-
-            DynamoDBQueryExpression queryExpression = new DynamoDBQueryExpression()
-                    .withHashKeyValues(findLast)
-                    .withIndexName("Plotted-n-index")
-                    .withRangeKeyCondition("n", range)
-                    .withScanIndexForward(false)
-                    .withLimit(1)
-                    .withConsistentRead(false);
-
-            PaginatedQueryList res = mMapper.query(Ashioto.class, queryExpression);
-            if (res.size() > 0) {
-                Object gx = res.get(0);
-                Map saf = null;
-                try {
-                    saf = MainActivity.getFieldNamesAndValues(gx, false);
-                } catch (IllegalAccessException e) {
-                    e.printStackTrace();
-                }
-                if (saf != null) {
-                    Log.i("NNNN", saf.toString());
-                    Integer f = (Integer) saf.get("uuid");
-                    finUUID = f+1;
-                    Log.i("NNNN", f.toString());
-                }
-            }
-            else{
-                finUUID = 1;
-            }
-            return finUUID;
-        }
     }
 }

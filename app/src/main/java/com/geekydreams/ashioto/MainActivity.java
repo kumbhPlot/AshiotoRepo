@@ -1,9 +1,5 @@
 package com.geekydreams.ashioto;
 
-/**
- * Created by geek on 27/4/15.
- */
-
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -24,6 +20,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Looper;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -88,8 +85,10 @@ public class MainActivity extends AppCompatActivity {
     public static DB ashiotoDB;
 
     int gateCode;
+    String longitude, latitude;
 
     Integer finUUID;
+
 
 
     @Override
@@ -99,6 +98,8 @@ public class MainActivity extends AppCompatActivity {
         ButterKnife.bind(this);
 
         SharedPreferences id = getSharedPreferences("settings", 0);
+        longitude = id.getString("long", "0.000");
+        latitude = id.getString("lat", "0.000");
 
         try {
             ashiotoDB = DBFactory.open(MainActivity.this, "ashiotoDB");
@@ -218,12 +219,7 @@ public class MainActivity extends AppCompatActivity {
     OnClickListener sendClickListener = new OnClickListener() {
         @Override
         public void onClick(View view) {
-            int cur = uuidPrefs.getInt("uuid", 0);
-            int nxt = cur + 1;
-            uuidPrefsEditor.putInt("uuid", nxt);
-
-            String uid = String.valueOf(ud);
-            SyncTask syncTask = new SyncTask(uid, ud);
+            SyncTask syncTask = new SyncTask();
             syncTask.execute();
             System.gc();
         }
@@ -278,9 +274,6 @@ public class MainActivity extends AppCompatActivity {
                 socket.close();
                 response = byteArrayOutputStream.toString("UTF-8");
 
-            } catch (UnknownHostException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
             } catch (IOException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
@@ -297,62 +290,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public class SyncTask extends AsyncTask<Void, Void, Void>{
-        String uuidString;
-        int no;
-        SyncTask(String uid, int n){
-            uuidString = uid;
-            no = n;
-        }
         @Override
         protected Void doInBackground(Void... voids) {
-
-            Ashioto findLast = new Ashioto();
-            findLast.setVlotted(1);
-            Integer n = 1;
-            Integer Plotted = 1;
-
-            Condition hash = new Condition()
-                    .withComparisonOperator(ComparisonOperator.EQ.toString())
-                    .withAttributeValueList(new AttributeValue().withS(Plotted.toString()));
-
-            Condition range = new Condition()
-                    .withComparisonOperator(ComparisonOperator.GE.toString())
-                    .withAttributeValueList(new AttributeValue().withN(n.toString()));
-
-            HashMap<String, Condition> hashMap = new HashMap<>();
-            hashMap.put("Plotted", hash);
-
-            DynamoDBQueryExpression queryExpression = new DynamoDBQueryExpression()
-                    .withHashKeyValues(findLast)
-                    .withIndexName("Plotted-n-index")
-                    .withRangeKeyCondition("n", range)
-                    .withScanIndexForward(false)
-                    .withLimit(1)
-                    .withConsistentRead(false);
-
-            PaginatedQueryList res = mapper.query(Ashioto.class, queryExpression);
-            if (res.size() > 0) {
-                Object gx = res.get(0);
-                Map saf = null;
-
-                Field field;
-                try {
-                    saf = getFieldNamesAndValues(gx, false);
-                } catch (IllegalAccessException e) {
-                    e.printStackTrace();
-                }
-                if (saf != null) {
-                    Log.i("NNNN", saf.toString());
-                    Integer f = (Integer) saf.get("uuid");
-                    finUUID = f+1;
-                    Log.i("NNNN", f.toString());
-                }
-            }
-            else{
-                finUUID = 1;
-            }
-
-
                 /*try {
                     field = cl.getField("uuid");
                     int o = field.getInt(gx);
@@ -362,10 +301,7 @@ public class MainActivity extends AppCompatActivity {
                 } catch (IllegalAccessException e) {
                     e.printStackTrace();
                 }*/
-
-            String ho = res.toString();
 //            Log.i("Res", gx.toString());
-
 
             //Time
             Calendar calendar = Calendar.getInstance();
@@ -389,30 +325,20 @@ public class MainActivity extends AppCompatActivity {
             hour = hourForm.format(calendar.getTime());
             minute = minuteForm.format(calendar.getTime());
             second = secondForm.format(calendar.getTime());
+            String timestampFinal = year+"/"+month+"/"+date+" "+hour+":"+minute+":"+second;
             //End of Time
             String inFin = inDB.getText().toString(),
-                    outFin = outDB.getText().toString(),
-                    appFin = appDB.getText().toString();
+                    outFin = outDB.getText().toString();
             Integer inDB = Integer.valueOf(inFin);
             Integer outDB = Integer.valueOf(outFin);
 
-            Float appDB = Float.valueOf(appFin);
             Ashioto db = new Ashioto();
-            db.setUuid(finUUID);
-            db.setN(finUUID);
             db.setGateID(gateCode);
+            db.setTimestamp(timestampFinal);
             db.setInCount(inDB);
             db.setOutCount(outDB);
-            db.setApp(appDB);
-            db.setYear(year);
-            db.setMonth(month);
-            db.setDate(date);
-            db.setHour(hour);
-            db.setMinute(minute);
-            db.setSecond(second);
-            db.setSynced(true);
-//            db.setPlotted(false);
-            db.setVlotted(0);
+            db.setLattitude(latitude);
+            db.setLongitude(longitude);
             mapper.save(db);
 
             return null;
@@ -426,20 +352,19 @@ public class MainActivity extends AppCompatActivity {
     public static Map<String, Object> getFieldNamesAndValues(final Object obj, boolean publicOnly)
             throws IllegalArgumentException,IllegalAccessException
     {
-        Class<? extends Object> c1 = obj.getClass();
-        Map<String, Object> map = new HashMap<String, Object>();
+        Class<?> c1 = obj.getClass();
+        Map<String, Object> map = new HashMap<>();
         Field[] fields = c1.getDeclaredFields();
-        for (int i = 0; i < fields.length; i++) {
-            String name = fields[i].getName();
+        for (Field field : fields) {
+            String name = field.getName();
             if (publicOnly) {
-                if(Modifier.isPublic(fields[i].getModifiers())) {
-                    Object value = fields[i].get(obj);
+                if (Modifier.isPublic(field.getModifiers())) {
+                    Object value = field.get(obj);
                     map.put(name, value);
                 }
-            }
-            else {
-                fields[i].setAccessible(true);
-                Object value = fields[i].get(obj);
+            } else {
+                field.setAccessible(true);
+                Object value = field.get(obj);
                 map.put(name, value);
             }
         }

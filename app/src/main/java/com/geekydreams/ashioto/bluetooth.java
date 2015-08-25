@@ -127,6 +127,7 @@ public class bluetooth extends AppCompatActivity {
     //Ints
     int ud;
     int gateId;
+    int gateCode;
 
     public String u = "uuidP";
 
@@ -146,7 +147,7 @@ public class bluetooth extends AppCompatActivity {
             }
         }
 
-        ;
+
     };
 
     DB localDb;
@@ -158,6 +159,17 @@ public class bluetooth extends AppCompatActivity {
         ButterKnife.bind(this);
         try {
             localDb = DBFactory.open(getApplication(), "ashiotoDB");
+        } catch (SnappydbException e) {
+            e.printStackTrace();
+        }
+        try {
+            if (Start.localDB.exists("gateID")) {
+                try {
+                    gateCode = Start.localDB.getInt("gateID");
+                } catch (SnappydbException e) {
+                    e.printStackTrace();
+                }
+            }
         } catch (SnappydbException e) {
             e.printStackTrace();
         }
@@ -301,9 +313,6 @@ public class bluetooth extends AppCompatActivity {
 
             try {
                 inputStream = mBTSocket.getInputStream();
-                if (inputStream == null) {
-                    Toast.makeText(bluetooth.this, "Disconnected", Toast.LENGTH_SHORT).show();
-                }
                 while (!bStop) {    //due to this programme run infinitely
                     final byte[] buffer = new byte[2048];//This is the buffer size, i.e. the amount we read in one run
                     if (inputStream.available() > 0) {
@@ -424,10 +433,7 @@ public class bluetooth extends AppCompatActivity {
                     }
                     Thread.sleep(100);
                 }
-            } catch (IOException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            } catch (InterruptedException e) {
+            } catch (IOException | InterruptedException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
             }
@@ -451,8 +457,6 @@ public class bluetooth extends AppCompatActivity {
 
             if (mReadThread != null) {
                 mReadThread.stop();
-                while (mReadThread.isRunning())
-                    ; // Wait until it stops
                 mReadThread = null;
 
             }
@@ -523,9 +527,8 @@ public class bluetooth extends AppCompatActivity {
             try {
                 if (mBTSocket == null || !mIsBluetoothConnected) {
                     //mBTSocket = mDevice.createInsecureRfcommSocketToServiceRecord(mDeviceUUID);
-                    Method m = mDevice.getClass().getMethod("createRfcommSocket", new Class[]{int.class});
-                    BluetoothSocket tmp = (BluetoothSocket) m.invoke(mDevice, 1);
-                    mBTSocket = tmp;
+                    Method m = mDevice.getClass().getMethod("createRfcommSocket", int.class);
+                    mBTSocket = (BluetoothSocket) m.invoke(mDevice, 1);
                     BluetoothAdapter.getDefaultAdapter().cancelDiscovery();
                     mBTSocket.connect();
                 }
@@ -535,16 +538,7 @@ public class bluetooth extends AppCompatActivity {
                 mConnectSuccessful = false;
                 mHandler.sendEmptyMessage(0);
 
-            } catch (NoSuchMethodException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            } catch (IllegalArgumentException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            } catch (IllegalAccessException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            } catch (InvocationTargetException e) {
+            } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException | IllegalArgumentException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
             }
@@ -601,9 +595,6 @@ public class bluetooth extends AppCompatActivity {
                 socket.close();
                 response = byteArrayOutputStream.toString("UTF-8");
 
-            } catch (UnknownHostException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
             } catch (IOException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
@@ -618,7 +609,7 @@ public class bluetooth extends AppCompatActivity {
         }
 
     }
-    @DynamoDBTable(tableName = "test_gate1")
+    /*@DynamoDBTable(tableName = "test_gate1")
     public class Ashioto{
         private String year;
         private String month;
@@ -747,7 +738,7 @@ public class bluetooth extends AppCompatActivity {
             this.second = second;
         }
         //End of Timestamp Attributes
-    }
+    }*/
     public class SyncTask extends AsyncTask<Void, Void, Void>{
         String uuidString;
         int no;
@@ -757,51 +748,6 @@ public class bluetooth extends AppCompatActivity {
         }
         @Override
         protected Void doInBackground(Void... voids) {
-            com.geekydreams.ashioto.Ashioto findLast = new com.geekydreams.ashioto.Ashioto();
-            findLast.setVlotted(1);
-            Integer n = 1;
-            Integer Plotted = 1;
-
-            Condition hash = new Condition()
-                    .withComparisonOperator(ComparisonOperator.EQ.toString())
-                    .withAttributeValueList(new AttributeValue().withS(Plotted.toString()));
-
-            Condition range = new Condition()
-                    .withComparisonOperator(ComparisonOperator.GE.toString())
-                    .withAttributeValueList(new AttributeValue().withN(n.toString()));
-
-            HashMap<String, Condition> hashMap = new HashMap<>();
-            hashMap.put("Plotted", hash);
-
-            DynamoDBQueryExpression queryExpression = new DynamoDBQueryExpression()
-                    .withHashKeyValues(findLast)
-                    .withIndexName("Plotted-n-index")
-                    .withRangeKeyCondition("n", range)
-                    .withScanIndexForward(false)
-                    .withLimit(1)
-                    .withConsistentRead(false);
-
-            PaginatedQueryList res = mapper.query(com.geekydreams.ashioto.Ashioto.class, queryExpression);
-            if (res.size() > 0) {
-                Object gx = res.get(0);
-                Map saf = null;
-
-                Field field;
-                try {
-                    saf = MainActivity.getFieldNamesAndValues(gx, false);
-                } catch (IllegalAccessException e) {
-                    e.printStackTrace();
-                }
-                if (saf != null) {
-                    Log.i("NNNN", saf.toString());
-                    Integer f = (Integer) saf.get("uuid");
-                    finUUID = f+1;
-                    Log.i("NNNN", f.toString());
-                }
-            }
-            else{
-                finUUID = 1;
-            }
 
                 /*try {
                     field = cl.getField("uuid");
@@ -812,10 +758,6 @@ public class bluetooth extends AppCompatActivity {
                 } catch (IllegalAccessException e) {
                     e.printStackTrace();
                 }*/
-
-            String ho = res.toString();
-//            Log.i("Res", gx.toString());
-
 
             //Time
             Calendar calendar = Calendar.getInstance();
@@ -839,30 +781,16 @@ public class bluetooth extends AppCompatActivity {
             hour = hourForm.format(calendar.getTime());
             minute = minuteForm.format(calendar.getTime());
             second = secondForm.format(calendar.getTime());
+            String timestampFinal = year+"/"+month+"/"+date+" "+hour+":"+minute+":"+second;
             //End of Time
-            UUID uuid = UUID.randomUUID();
-            String uuidString = uuid.toString();
             Integer inDB = Integer.valueOf(inFin);
             Integer outDB = Integer.valueOf(outFin);
-            Float appDB = appFin;
-            Ashioto db = new Ashioto();
-            db.setUuid(finUUID);
-            db.setN(finUUID);
-            db.setGateID(finUUID);
+            com.geekydreams.ashioto.Ashioto db = new com.geekydreams.ashioto.Ashioto();
+            db.setGateID(gateCode);
+            db.setTimestamp(timestampFinal);
             db.setInCount(inDB);
             db.setOutCount(outDB);
-            db.setApp(appDB);
-            db.setYear(year);
-            db.setMonth(month);
-            db.setDate(date);
-            db.setHour(hour);
-            db.setMinute(minute);
-            db.setSecond(second);
-            db.setSynced(true);
-            db.setPlotted(false);
             mapper.save(db);
-
-
             return null;
         }
         @Override
