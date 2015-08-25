@@ -5,7 +5,7 @@ import io.realm.annotations.PrimaryKey;
 import io.realm.annotations.RealmClass;
 
 /**
- * Created by geek on 16/8/15.
+ * Created by geek on 16/8/15 for AshiotoRepo.
  */
 @RealmClass
 public class localSave extends RealmObject {
@@ -20,6 +20,9 @@ public class localSave extends RealmObject {
     private String second;
     private boolean synced;
     private float app;
+
+    public localSave() {
+    }
 
     public float getApp() {
         return app;

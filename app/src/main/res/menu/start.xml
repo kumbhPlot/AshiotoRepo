@@ -5,17 +5,17 @@
         <item
             android:id="@+id/action_settings"
             android:orderInCategory="100"
-            android:title="Parameters"
+            android:title="@string/parameters_title"
             app:showAsAction="never" />
         <item
             android:id="@+id/action_connect"
             android:orderInCategory="200"
-            android:title="Connect"
+            android:title="@string/connect_settings"
             app:showAsAction="never" />
         <item
             android:id="@+id/action_upload"
             android:orderInCategory="300"
-            android:title="Upload"
+            android:title="@string/upload_settings"
             app:showAsAction="never" />
     </group>
 </menu>

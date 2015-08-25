@@ -1,10 +1,10 @@
 package com.geekydreams.ashioto;
 
 /**
- * Created by geek on 24/6/15.
+ * Created by geek on 24/6/15 for AshiotoRepo.
  */
+
 import android.content.Context;
-import android.content.res.TypedArray;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.DrawerLayout;
@@ -17,8 +17,6 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.LinearLayout;
-import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,34 +24,31 @@ import java.util.List;
 public class FragmentDrawer extends Fragment {
 
     private static String TAG = FragmentDrawer.class.getSimpleName();
-
-    private RecyclerView recyclerView;
+    private static String[] titles = null;
     private ActionBarDrawerToggle mDrawerToggle;
     private DrawerLayout mDrawerLayout;
-    private NavigationDrawerAdapter adapter;
     private View containerView;
-    private static String[] titles = null;
     private FragmentDrawerListener drawerListener;
 
     public FragmentDrawer() {
 
     }
 
-    public void setDrawerListener(FragmentDrawerListener listener) {
-        this.drawerListener = listener;
-    }
-
-    public static List<NavDrawerItem> getData() {
+    private static List<NavDrawerItem> getData() {
         List<NavDrawerItem> data = new ArrayList<>();
 
 
         // preparing navigation drawer items
-        for (int i = 0; i < titles.length; i++) {
+        for (String title : titles) {
             NavDrawerItem navItem = new NavDrawerItem();
-            navItem.setTitle(titles[i]);
+            navItem.setTitle(title);
             data.add(navItem);
         }
         return data;
+    }
+
+    public void setDrawerListener(FragmentDrawerListener listener) {
+        this.drawerListener = listener;
     }
 
     @Override
@@ -69,9 +64,9 @@ public class FragmentDrawer extends Fragment {
                              Bundle savedInstanceState) {
         // Inflating view layout
         View layout = inflater.inflate(R.layout.fragment_navigation_drawer, container, false);
-        recyclerView = (RecyclerView) layout.findViewById(R.id.drawerList);
+        RecyclerView recyclerView = (RecyclerView) layout.findViewById(R.id.drawerList);
 
-        adapter = new NavigationDrawerAdapter(getActivity(), getData());
+        NavigationDrawerAdapter adapter = new NavigationDrawerAdapter(getActivity(), getData());
         recyclerView.setAdapter(adapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         recyclerView.addOnItemTouchListener(new RecyclerTouchListener(getActivity(), recyclerView, new ClickListener() {
@@ -124,16 +119,20 @@ public class FragmentDrawer extends Fragment {
 
     }
 
-    public static interface ClickListener {
-        public void onClick(View view, int position);
+    public interface ClickListener {
+        void onClick(View view, int position);
 
-        public void onLongClick(View view, int position);
+        void onLongClick(View view, int position);
+    }
+
+    public interface FragmentDrawerListener {
+        void onDrawerItemSelected(View view, int position);
     }
 
     static class RecyclerTouchListener implements RecyclerView.OnItemTouchListener {
 
-        private GestureDetector gestureDetector;
-        private ClickListener clickListener;
+        private final GestureDetector gestureDetector;
+        private final ClickListener clickListener;
 
         public RecyclerTouchListener(Context context, final RecyclerView recyclerView, final ClickListener clickListener) {
             this.clickListener = clickListener;
@@ -166,9 +165,5 @@ public class FragmentDrawer extends Fragment {
         @Override
         public void onTouchEvent(RecyclerView rv, MotionEvent e) {
         }
-    }
-
-    public interface FragmentDrawerListener {
-        public void onDrawerItemSelected(View view, int position);
     }
 }

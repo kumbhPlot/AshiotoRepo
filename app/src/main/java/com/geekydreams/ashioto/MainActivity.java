@@ -1,44 +1,28 @@
 package com.geekydreams.ashioto;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.PrintWriter;
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
-import java.net.Socket;
-import java.net.UnknownHostException;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.TimeZone;
-import java.util.concurrent.atomic.AtomicInteger;
-
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Looper;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.amazonaws.auth.CognitoCachingCredentialsProvider;
+import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBMapper;
 import com.amazonaws.regions.Regions;
-import com.amazonaws.services.dynamodbv2.*;
-import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.*;
-import com.amazonaws.services.dynamodbv2.model.*;
+import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient;
+import com.amazonaws.services.dynamodbv2.model.QueryResult;
 import com.snappydb.DB;
 import com.snappydb.DBFactory;
-import com.snappydb.SnappyDB;
 import com.snappydb.SnappydbException;
+
+import java.text.DateFormat;
+import java.util.Calendar;
+import java.util.TimeZone;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -47,49 +31,44 @@ import io.realm.Realm;
 public class MainActivity extends AppCompatActivity {
 
 
-
-    @Bind(R.id.localDBButton) Button saveLocalButton;
-
-    //Initialize Views
-    TextView textResponse;
-    EditText editTextAddress, editTextPort, toSend;
-    Button buttonConnect, buttonClear, buttonSend;
-
-    EditText inDB, outDB, appDB;
+    public static DB ashiotoDB;
     //Amazon variables
-    public static DynamoDBMapper mapper;
-
+    private static DynamoDBMapper mapper;
+    private final OnClickListener sendClickListener = new OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            SyncTask syncTask = new SyncTask();
+            syncTask.execute();
+            System.gc();
+        }
+    };
+    @Bind(R.id.localDBButton)
+    Button saveLocalButton;
+    @Bind(R.id.sendButton)
+    Button buttonSend;
+    @Bind(R.id.inSendDB)
+    EditText inDB;
+    @Bind(R.id.outSendDB)
+    EditText outDB;
     //Ints
     int ud;
-    int gateID;
-
-    //Strings
-    String year;
-    String month;
-    String date;
-    String hour;
-    String minute;
-    String second;
     AtomicInteger seq = new AtomicInteger();
-    public String u = "uuidP";
     String sa;
-
-    //Shared Prefs
-    SharedPreferences uuidPrefs;
-    SharedPreferences.Editor uuidPrefsEditor;
-
-
-    public static AmazonDynamoDBClient ddbClient;
     QueryResult result;
-
-    public static DB ashiotoDB;
-
-    int gateCode;
-    String longitude, latitude;
-
     Integer finUUID;
-
-
+    //Strings
+    private String year;
+    private String month;
+    private String date;
+    private String hour;
+    private String minute;
+    private String second;
+    //Shared Prefs
+    private SharedPreferences uuidPrefs;
+    private SharedPreferences.Editor uuidPrefsEditor;
+    private int gateCode;
+    private String longitude;
+    private String latitude;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -125,12 +104,12 @@ public class MainActivity extends AppCompatActivity {
                 //Time
                 Calendar calendar = Calendar.getInstance();
                 calendar.setTimeZone(TimeZone.getTimeZone("Asia/Calcutta"));
-                DateFormat yearForm = new SimpleDateFormat("yyyy");
-                DateFormat monthForm = new SimpleDateFormat("MM");
-                DateFormat dateForm = new SimpleDateFormat("dd");
-                DateFormat hourForm = new SimpleDateFormat("HH");
-                DateFormat minuteForm = new SimpleDateFormat("mm");
-                DateFormat secondForm = new SimpleDateFormat("ss");
+                DateFormat yearForm = DateFormat.getDateTimeInstance(DEFAULT_KEYS_SEARCH_LOCAL, DateFormat.YEAR_FIELD);
+                DateFormat monthForm = DateFormat.getDateTimeInstance(DEFAULT_KEYS_SEARCH_LOCAL, DateFormat.MONTH_FIELD);
+                DateFormat dateForm = DateFormat.getDateTimeInstance(DEFAULT_KEYS_SEARCH_LOCAL, DateFormat.DATE_FIELD);
+                DateFormat hourForm = DateFormat.getDateTimeInstance(DEFAULT_KEYS_SEARCH_LOCAL, DateFormat.HOUR_OF_DAY0_FIELD);
+                DateFormat minuteForm = DateFormat.getDateTimeInstance(DEFAULT_KEYS_SEARCH_LOCAL, DateFormat.MINUTE_FIELD);
+                DateFormat secondForm = DateFormat.getDateTimeInstance(DEFAULT_KEYS_SEARCH_LOCAL, DateFormat.SECOND_FIELD);
                 TimeZone timeZone = TimeZone.getTimeZone("Asia/Calcutta");
                 yearForm.setTimeZone(timeZone);
                 monthForm.setTimeZone(timeZone);
@@ -151,9 +130,7 @@ public class MainActivity extends AppCompatActivity {
                 int nxt = cur + 1;
                 uuidPrefsEditor.putInt("uuid", nxt).apply();
                 String inFin = inDB.getText().toString(),
-                        outFin = outDB.getText().toString(),
-                        appFin = appDB.getText().toString();
-                Float appDB = Float.valueOf(appFin);
+                        outFin = outDB.getText().toString();
                 Integer inDB = Integer.valueOf(inFin);
                 Integer outDB = Integer.valueOf(outFin);
 
@@ -169,13 +146,12 @@ public class MainActivity extends AppCompatActivity {
                 toCommit.setMinute(minute);
                 toCommit.setSecond(second);
                 toCommit.setSynced(false);
-                toCommit.setApp(appDB);
                 realm.commitTransaction();
                 realm.close();
             }
         });
 
-        gateID = id.getInt("gateID", 1);
+        String u = "uuidP";
         uuidPrefs = getSharedPreferences(u, 0);
         uuidPrefsEditor = uuidPrefs.edit();
         CognitoCachingCredentialsProvider credentialsProvider = new CognitoCachingCredentialsProvider(
@@ -183,30 +159,9 @@ public class MainActivity extends AppCompatActivity {
                 "us-east-1:08e41de7-9cb0-40d6-9f04-6f8956ed25bb", // Identity Pool ID
                 Regions.US_EAST_1 // Region
         );
-        ddbClient = new AmazonDynamoDBClient(credentialsProvider);
+        AmazonDynamoDBClient ddbClient = new AmazonDynamoDBClient(credentialsProvider);
         mapper = new DynamoDBMapper(ddbClient);
 
-        buttonConnect = (Button) findViewById(R.id.connect);
-        buttonClear = (Button) findViewById(R.id.clear);
-        buttonSend = (Button) findViewById(R.id.sendButton);
-        editTextAddress = (EditText) findViewById(R.id.address);
-        editTextPort = (EditText) findViewById(R.id.port);
-        toSend = (EditText) findViewById(R.id.toSend);
-        inDB = (EditText) findViewById(R.id.inSendDB);
-        outDB = (EditText) findViewById(R.id.outSendDB);
-        appDB = (EditText) findViewById(R.id.appSendDB);
-
-        textResponse = (TextView) findViewById(R.id.response);
-
-        buttonConnect.setOnClickListener(buttonConnectOnClickListener);
-
-        buttonClear.setOnClickListener(new OnClickListener() {
-
-            @Override
-            public void onClick(View v) {
-                textResponse.setText("");
-            }
-        });
         // Initialize the Amazon Cognito credentials provider
 
 
@@ -215,81 +170,7 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-
-    OnClickListener sendClickListener = new OnClickListener() {
-        @Override
-        public void onClick(View view) {
-            SyncTask syncTask = new SyncTask();
-            syncTask.execute();
-            System.gc();
-        }
-    };
-    OnClickListener buttonConnectOnClickListener =
-            new OnClickListener() {
-
-                @Override
-                public void onClick(View arg0) {
-     /*
-      * You have to verify editTextAddress and
-      * editTextPort are input as correct format.
-      */
-
-                    MyClientTask myClientTask = new MyClientTask(
-                            editTextAddress.getText().toString(),
-                            Integer.parseInt(editTextPort.getText().toString()));
-                    myClientTask.execute();
-                }
-            };
-
-
-    public class MyClientTask extends AsyncTask<Void, Void, Void>{
-
-        String dstAddress;
-        int dstPort;
-        String response;
-
-        MyClientTask(String addr, int port) {
-            dstAddress = addr;
-            dstPort = port;
-        }
-
-        @Override
-        protected Void doInBackground(Void... arg0) {
-
-            try {
-                Socket socket = new Socket(dstAddress, dstPort);
-                InputStream inputStream = socket.getInputStream();
-                String s = toSend.getText().toString();
-                PrintWriter pw = new PrintWriter(socket.getOutputStream(), true);
-                pw.println(s);
-                ByteArrayOutputStream byteArrayOutputStream =
-                        new ByteArrayOutputStream(1024);
-                byte[] buffer = new byte[1024];
-
-                int bytesRead;
-                while ((bytesRead = inputStream.read(buffer)) != -1) {
-                    byteArrayOutputStream.write(buffer, 0, bytesRead);
-                }
-
-                socket.close();
-                response = byteArrayOutputStream.toString("UTF-8");
-
-            } catch (IOException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Void result) {
-            textResponse.setText(response);
-            super.onPostExecute(result);
-        }
-
-    }
-
-    public class SyncTask extends AsyncTask<Void, Void, Void>{
+    private class SyncTask extends AsyncTask<Void, Void, Void> {
         @Override
         protected Void doInBackground(Void... voids) {
                 /*try {
@@ -306,12 +187,12 @@ public class MainActivity extends AppCompatActivity {
             //Time
             Calendar calendar = Calendar.getInstance();
             calendar.setTimeZone(TimeZone.getTimeZone("Asia/Calcutta"));
-            DateFormat yearForm = new SimpleDateFormat("yyyy");
-            DateFormat monthForm = new SimpleDateFormat("MM");
-            DateFormat dateForm = new SimpleDateFormat("dd");
-            DateFormat hourForm = new SimpleDateFormat("HH");
-            DateFormat minuteForm = new SimpleDateFormat("mm");
-            DateFormat secondForm = new SimpleDateFormat("ss");
+            DateFormat yearForm = DateFormat.getDateTimeInstance(DEFAULT_KEYS_SEARCH_LOCAL, DateFormat.YEAR_FIELD);
+            DateFormat monthForm = DateFormat.getDateTimeInstance(DEFAULT_KEYS_SEARCH_LOCAL, DateFormat.MONTH_FIELD);
+            DateFormat dateForm = DateFormat.getDateTimeInstance(DEFAULT_KEYS_SEARCH_LOCAL, DateFormat.DATE_FIELD);
+            DateFormat hourForm = DateFormat.getDateTimeInstance(DEFAULT_KEYS_SEARCH_LOCAL, DateFormat.HOUR_OF_DAY0_FIELD);
+            DateFormat minuteForm = DateFormat.getDateTimeInstance(DEFAULT_KEYS_SEARCH_LOCAL, DateFormat.MINUTE_FIELD);
+            DateFormat secondForm = DateFormat.getDateTimeInstance(DEFAULT_KEYS_SEARCH_LOCAL, DateFormat.SECOND_FIELD);
             TimeZone timeZone = TimeZone.getTimeZone("Asia/Calcutta");
             yearForm.setTimeZone(timeZone);
             monthForm.setTimeZone(timeZone);
@@ -349,70 +230,4 @@ public class MainActivity extends AppCompatActivity {
             super.onPostExecute(voids);
         }
     }
-    public static Map<String, Object> getFieldNamesAndValues(final Object obj, boolean publicOnly)
-            throws IllegalArgumentException,IllegalAccessException
-    {
-        Class<?> c1 = obj.getClass();
-        Map<String, Object> map = new HashMap<>();
-        Field[] fields = c1.getDeclaredFields();
-        for (Field field : fields) {
-            String name = field.getName();
-            if (publicOnly) {
-                if (Modifier.isPublic(field.getModifiers())) {
-                    Object value = field.get(obj);
-                    map.put(name, value);
-                }
-            } else {
-                field.setAccessible(true);
-                Object value = field.get(obj);
-                map.put(name, value);
-            }
-        }
-        return map;
-    }
-/*
-    public class localSaveTask extends AsyncTask<Void, Void, Void>{
-        realm = Realm.getInstance(MainActivity.this);
-        int no;
-        localSaveTask(int number){
-            no = number;
-        }
-        @Override
-        protected Void doInBackground(Void... params) {
-            String inFin = inDB.getText().toString(),
-                    outFin = outDB.getText().toString();
-            Integer inDB = Integer.valueOf(inFin);
-            Integer outDB = Integer.valueOf(outFin);
-
-            realm.beginTransaction();
-            localSave toCommit = realm.createObject(localSave.class);
-            toCommit.setUid(no);
-            toCommit.setInCount(inDB);
-            toCommit.setOutCount(outDB);
-            toCommit.setYear(year);
-            toCommit.setMonth(month);
-            toCommit.setDate(date);
-            toCommit.setHour(hour);
-            toCommit.setMinute(minute);
-            toCommit.setSecond(second);
-            realm.commitTransaction();
-
-
-            return null;
-        }
-        @Override
-        public void onPostExecute(Void voids){
-            super.onPostExecute(voids);
-            Toast.makeText(MainActivity.this, "Saved Locally: " + String.valueOf(no), Toast.LENGTH_LONG).show();
-        }
-    }
-*/
-
-    Thread dbThread = new Thread(new Runnable() {
-        Realm realm = Realm.getDefaultInstance();
-        @Override
-        public void run() {
-
-        }
-    });
 }

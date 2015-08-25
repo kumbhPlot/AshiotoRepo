@@ -12,15 +12,15 @@
     tools:context=".Start">
 
     <include
-        layout="@layout/toolbar"
         android:id="@+id/toolhome"
+        layout="@layout/toolbar"
         />
     <TextView
         android:id="@+id/txtListHeading"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:gravity="center"
-        android:text="Paired Shields"
+        android:text="@string/pairedshields_title"
         android:textSize="20sp" />
 
         <ListView

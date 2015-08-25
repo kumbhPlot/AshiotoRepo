@@ -11,83 +11,27 @@
     tools:context=".MainActivity">
 
     <EditText
-        android:visibility="gone"
-        android:id="@+id/address"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:singleLine="true"
-        android:text="nilayscience.no-ip.org" />
-
-    <EditText
-        android:visibility="gone"
-
-        android:id="@+id/port"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:singleLine="true"
-        android:text="8080" />
-
-    <Button
-        android:visibility="gone"
-
-        android:id="@+id/connect"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Connect..." />
-
-    <Button
-        android:visibility="gone"
-
-        android:id="@+id/clear"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Clear" />
-
-    <TextView
-        android:visibility="gone"
-
-        android:id="@+id/response"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
-
-    <EditText
-        android:visibility="gone"
-
-        android:id="@+id/toSend"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:singleLine="true"
-        android:text="#200$100*10%" />
-    <EditText
-        android:inputType="number"
-        android:text="178"
-        android:textSize="30sp"
         android:id="@+id/inSendDB"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
-    <EditText
+        android:layout_height="wrap_content"
         android:inputType="number"
-        android:text="83"
-        android:textSize="30sp"
+        android:text="@string/zero"
+        android:textSize="30sp" />
+    <EditText
         android:id="@+id/outSendDB"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
-    <EditText
+        android:layout_height="wrap_content"
         android:inputType="number"
-        android:text="1.81"
-        android:textSize="30sp"
-        android:id="@+id/appSendDB"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:textSize="30sp" />
     <Button
-        android:textSize="24sp"
-        android:text="Save to Database"
         android:id="@+id/sendButton"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:text="@string/saveDB_title"
+        android:textSize="24sp" />
     <Button
-        android:text="Save Locally"
         android:id="@+id/localDBButton"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:text="@string/saveLoc_title" />
 </LinearLayout>

@@ -1,71 +1,39 @@
 package com.geekydreams.ashioto;
 
-import java.io.ByteArrayOutputStream;
-import java.io.Flushable;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InterruptedIOException;
-import java.io.PrintWriter;
-import java.lang.reflect.Array;
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.net.Socket;
-import java.net.UnknownHostException;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.TimeZone;
-import java.util.UUID;
-
-import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.app.ProgressDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Handler;
-import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.CheckBox;
-import android.widget.EditText;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.amazonaws.auth.CognitoCachingCredentialsProvider;
-import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBAttribute;
-import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBHashKey;
-import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBIndexHashKey;
-import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBIndexRangeKey;
 import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBMapper;
-import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBQueryExpression;
-import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBTable;
-import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.PaginatedQueryList;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient;
-import com.amazonaws.services.dynamodbv2.model.AttributeValue;
-import com.amazonaws.services.dynamodbv2.model.ComparisonOperator;
-import com.amazonaws.services.dynamodbv2.model.Condition;
-import com.amazonaws.services.dynamodbv2.model.GetItemRequest;
-import com.amazonaws.services.dynamodbv2.model.QueryRequest;
-import com.amazonaws.services.dynamodbv2.model.QueryResult;
-import com.snappydb.DB;
-import com.snappydb.DBFactory;
 import com.snappydb.SnappydbException;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.PrintWriter;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.net.Socket;
+import java.text.DateFormat;
+import java.util.Calendar;
+import java.util.TimeZone;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -73,96 +41,56 @@ import io.realm.Realm;
 
 public class bluetooth extends AppCompatActivity {
 
+    private final String areaPref = "areaPref";
+    public Integer finUUID;
     @Bind(R.id.saveLocal) Button saveLocalButton;
-
-
-    float appFin;
-    float area;
     String rpi = "nilayscience.no-ip.org";
     int prt = 8343;
-    private int mMaxChars = 50000;//Default
-    private UUID mDeviceUUID;
+    Integer inInt;
+    Integer outInt;
+    RelativeLayout denRelative;
+    RelativeLayout inRelative;
+    RelativeLayout outRelative;
+    private float appFin;
+    private float area;
     private BluetoothSocket mBTSocket;
     private ReadInput mReadThread = null;
-
-    private boolean mIsUserInitiatedDisconnect = false;
-
-    public Integer finUUID;
     // All controls here
     private TextView areaHint;
     private TextView mTxtReceive;
     private TextView mTxtOut;
     private TextView mTxtdensity;
-    Button syncBtn;
     //  private ScrollView scrollView;
     private CheckBox chkScroll;
     private CheckBox chkReceiveText;
-    Integer inInt;
-    String outFin;
-    Integer outInt;
-    RelativeLayout denRelative;
-    RelativeLayout inRelative;
-    RelativeLayout outRelative;
-    public String areaPref = "areaPref";
-    String inFin;
-    String denstityStr;
+    private String outFin;
+    private String inFin;
+    private String denstityStr;
     private boolean mIsBluetoothConnected = false;
 
     private BluetoothDevice mDevice;
 
     private ProgressDialog progressDialog;
-    String strInput;
+    private String strInput;
 
     //Amazon variables
-    DynamoDBMapper mapper;
-
-    //Strings
-    String year;
-    String month;
-    String date;
-    String hour;
-    String minute;
-    String second;
+    private DynamoDBMapper mapper;
 
     //Ints
-    int ud;
-    int gateId;
-    int gateCode;
-    String lat,longi;
-
-    public String u = "uuidP";
+    private int ud;
+    private int gateCode;
+    private String lat;
+    private String longi;
 
     //Shared Prefs
-    SharedPreferences uuidPrefs;
-    SharedPreferences.Editor uuidPrefsEditor;
-
-    Handler mHandler = new Handler() {
-        public void handleMessage(android.os.Message msg) {
-            switch (msg.what) {
-                case 0:
-                    Toast.makeText(bluetooth.this, "Device Disconnected", Toast.LENGTH_LONG).show();
-                    break;
-
-                default:
-                    break;
-            }
-        }
-
-
-    };
-
-    DB localDb;
+    private SharedPreferences uuidPrefs;
+    private SharedPreferences.Editor uuidPrefsEditor;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_bluetooth);
         ButterKnife.bind(this);
-        try {
-            localDb = DBFactory.open(getApplication(), "ashiotoDB");
-        } catch (SnappydbException e) {
-            e.printStackTrace();
-        }
         try {
             if (Start.localDB.exists("gateID")) {
                 try {
@@ -175,7 +103,6 @@ public class bluetooth extends AppCompatActivity {
             e.printStackTrace();
         }
         SharedPreferences getGateID = getSharedPreferences("settings", 0);
-        gateId = getGateID.getInt("gateID", 1);
         lat = getGateID.getString("lat", "0.000");
         longi = getGateID.getString("long", "0.000");
 
@@ -190,14 +117,11 @@ public class bluetooth extends AppCompatActivity {
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.tooltooth);
         setSupportActionBar(toolbar);
-        ActivityHelper.initialize(this);
 
         Intent intent = getIntent();
         Bundle b = intent.getExtras();
         mDevice = b.getParcelable(Start.DEVICE_EXTRA);
-        mDeviceUUID = UUID.fromString(b.getString(Start.DEVICE_UUID));
-        mMaxChars = b.getInt(Start.BUFFER_SIZE);
-        syncBtn = (Button) findViewById(R.id.syncBtn);
+        Button syncBtn = (Button) findViewById(R.id.syncBtn);
 
         OnClickListener buttonConnectOnClickListener =
                 new OnClickListener() {
@@ -226,6 +150,7 @@ public class bluetooth extends AppCompatActivity {
                     }
                 };
         syncBtn.setOnClickListener(buttonConnectOnClickListener);
+        String u = "uuidP";
         uuidPrefs = getSharedPreferences(u, 0);
         uuidPrefsEditor = uuidPrefs.edit();
         saveLocalButton.setOnClickListener(new OnClickListener() {
@@ -297,10 +222,30 @@ public class bluetooth extends AppCompatActivity {
         });*/
     }
 
+    private void msg() {
+        Toast.makeText(getApplicationContext(), "Connected to device", Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    protected void onPause() {
+        if (mBTSocket != null && mIsBluetoothConnected) {
+            new DisConnectBT().execute();
+        }
+        super.onPause();
+    }
+
+    @Override
+    protected void onResume() {
+        if (mBTSocket == null || !mIsBluetoothConnected) {
+            new ConnectBT().execute();
+        }
+        super.onResume();
+    }
+
     private class ReadInput implements Runnable {
 
+        private final Thread t;
         private boolean bStop = false;
-        private Thread t;
 
         public ReadInput() {
             t = new Thread(this, "Input Thread");
@@ -320,7 +265,6 @@ public class bluetooth extends AppCompatActivity {
                 while (!bStop) {    //due to this programme run infinitely
                     final byte[] buffer = new byte[2048];//This is the buffer size, i.e. the amount we read in one run
                     if (inputStream.available() > 0) {
-                        int stringStream = inputStream.read(buffer);
                         int i;
                         /*
                          * This is needed because new String(buffer) is taking the entire buffer i.e. 256 chars on Android 2.3.4 http://stackoverflow.com/a/8843462/1287554
@@ -330,7 +274,7 @@ public class bluetooth extends AppCompatActivity {
                         }
 
 						/*
-						 * If checked then receive text, better design would probably be to stop thread if unchecked and free resources, but this is a quick fix
+                         * If checked then receive text, better design would probably be to stop thread if unchecked and free resources, but this is a quick fix
 						 */
 
                         if (strInput.startsWith("#")) {
@@ -479,42 +423,8 @@ public class bluetooth extends AppCompatActivity {
         protected void onPostExecute(Void result) {
             super.onPostExecute(result);
             mIsBluetoothConnected = false;
-            if (mIsUserInitiatedDisconnect) {
-                finish();
-            }
         }
 
-    }
-
-    private void msg(String s) {
-        Toast.makeText(getApplicationContext(), s, Toast.LENGTH_SHORT).show();
-    }
-
-    @Override
-    protected void onPause() {
-        if (mBTSocket != null && mIsBluetoothConnected) {
-            new DisConnectBT().execute();
-        }
-        super.onPause();
-    }
-
-    @Override
-    protected void onResume() {
-        if (mBTSocket == null || !mIsBluetoothConnected) {
-            new ConnectBT().execute();
-        }
-        super.onResume();
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-    }
-
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        // TODO Auto-generated method stub
-        super.onSaveInstanceState(outState);
     }
 
     private class ConnectBT extends AsyncTask<Void, Void, Void> {
@@ -540,7 +450,6 @@ public class bluetooth extends AppCompatActivity {
                 // Unable to connect to device
                 e.printStackTrace();
                 mConnectSuccessful = false;
-                mHandler.sendEmptyMessage(0);
 
             } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException | IllegalArgumentException e) {
                 // TODO Auto-generated catch block
@@ -557,7 +466,7 @@ public class bluetooth extends AppCompatActivity {
                 Toast.makeText(getApplicationContext(), "Could not connect to device. Is it a Serial device? Also check if the UUID is correct in the settings", Toast.LENGTH_LONG).show();
                 finish();
             } else {
-                msg("Connected to device");
+                msg();
                 mIsBluetoothConnected = true;
                 mReadThread = new ReadInput(); // Kick off input reader
             }
@@ -569,8 +478,8 @@ public class bluetooth extends AppCompatActivity {
 
     public class MyClientTask extends AsyncTask<Void, Void, Void> {
 
-        String dstAddress;
-        int dstPort;
+        final String dstAddress;
+        final int dstPort;
         String response;
 
         MyClientTask(String addr, int port) {
@@ -744,8 +653,8 @@ public class bluetooth extends AppCompatActivity {
         //End of Timestamp Attributes
     }*/
     public class SyncTask extends AsyncTask<Void, Void, Void>{
-        String uuidString;
-        int no;
+        final String uuidString;
+        final int no;
         SyncTask(String uid, int n){
             uuidString = uid;
             no = n;
@@ -766,12 +675,12 @@ public class bluetooth extends AppCompatActivity {
             //Time
             Calendar calendar = Calendar.getInstance();
             calendar.setTimeZone(TimeZone.getTimeZone("Asia/Calcutta"));
-            DateFormat yearForm = new SimpleDateFormat("yyyy");
-            DateFormat monthForm = new SimpleDateFormat("MM");
-            DateFormat dateForm = new SimpleDateFormat("dd");
-            DateFormat hourForm = new SimpleDateFormat("HH");
-            DateFormat minuteForm = new SimpleDateFormat("mm");
-            DateFormat secondForm = new SimpleDateFormat("ss");
+            DateFormat yearForm = DateFormat.getDateTimeInstance(DEFAULT_KEYS_SEARCH_LOCAL, DateFormat.YEAR_FIELD);
+            DateFormat monthForm = DateFormat.getDateTimeInstance(DEFAULT_KEYS_SEARCH_LOCAL, DateFormat.MONTH_FIELD);
+            DateFormat dateForm = DateFormat.getDateTimeInstance(DEFAULT_KEYS_SEARCH_LOCAL, DateFormat.DATE_FIELD);
+            DateFormat hourForm = DateFormat.getDateTimeInstance(DEFAULT_KEYS_SEARCH_LOCAL, DateFormat.HOUR_OF_DAY0_FIELD);
+            DateFormat minuteForm = DateFormat.getDateTimeInstance(DEFAULT_KEYS_SEARCH_LOCAL, DateFormat.MINUTE_FIELD);
+            DateFormat secondForm = DateFormat.getDateTimeInstance(DEFAULT_KEYS_SEARCH_LOCAL, DateFormat.SECOND_FIELD);
             TimeZone timeZone = TimeZone.getTimeZone("Asia/Calcutta");
             yearForm.setTimeZone(timeZone);
             monthForm.setTimeZone(timeZone);
@@ -779,13 +688,13 @@ public class bluetooth extends AppCompatActivity {
             hourForm.setTimeZone(timeZone);
             minuteForm.setTimeZone(timeZone);
             secondForm.setTimeZone(timeZone);
-            year = yearForm.format(calendar.getTime());
-            month = monthForm.format(calendar.getTime());
-            date = dateForm.format(calendar.getTime());
-            hour = hourForm.format(calendar.getTime());
-            minute = minuteForm.format(calendar.getTime());
-            second = secondForm.format(calendar.getTime());
-            String timestampFinal = year+"/"+month+"/"+date+" "+hour+":"+minute+":"+second;
+            String year = yearForm.format(calendar.getTime());
+            String month = monthForm.format(calendar.getTime());
+            String date = dateForm.format(calendar.getTime());
+            String hour = hourForm.format(calendar.getTime());
+            String minute = minuteForm.format(calendar.getTime());
+            String second = secondForm.format(calendar.getTime());
+            String timestampFinal = year + "/" + month + "/" + date + " " + hour + ":" + minute + ":" + second;
             //End of Time
             Integer inDB = Integer.valueOf(inFin);
             Integer outDB = Integer.valueOf(outFin);
@@ -807,7 +716,7 @@ public class bluetooth extends AppCompatActivity {
     }
     public class localSaveTask extends AsyncTask<Void, Void, Void>{
 
-        int no;
+        final int no;
         localSaveTask(int number){
             no = number;
         }
@@ -816,12 +725,12 @@ public class bluetooth extends AppCompatActivity {
             //Time
             Calendar calendar = Calendar.getInstance();
             calendar.setTimeZone(TimeZone.getTimeZone("Asia/Calcutta"));
-            DateFormat yearForm = new SimpleDateFormat("yyyy");
-            DateFormat monthForm = new SimpleDateFormat("MM");
-            DateFormat dateForm = new SimpleDateFormat("dd");
-            DateFormat hourForm = new SimpleDateFormat("HH");
-            DateFormat minuteForm = new SimpleDateFormat("mm");
-            DateFormat secondForm = new SimpleDateFormat("ss");
+            DateFormat yearForm = DateFormat.getDateTimeInstance(DEFAULT_KEYS_SEARCH_LOCAL, DateFormat.YEAR_FIELD);
+            DateFormat monthForm = DateFormat.getDateTimeInstance(DEFAULT_KEYS_SEARCH_LOCAL, DateFormat.MONTH_FIELD);
+            DateFormat dateForm = DateFormat.getDateTimeInstance(DEFAULT_KEYS_SEARCH_LOCAL, DateFormat.DATE_FIELD);
+            DateFormat hourForm = DateFormat.getDateTimeInstance(DEFAULT_KEYS_SEARCH_LOCAL, DateFormat.HOUR_OF_DAY0_FIELD);
+            DateFormat minuteForm = DateFormat.getDateTimeInstance(DEFAULT_KEYS_SEARCH_LOCAL, DateFormat.MINUTE_FIELD);
+            DateFormat secondForm = DateFormat.getDateTimeInstance(DEFAULT_KEYS_SEARCH_LOCAL, DateFormat.SECOND_FIELD);
             TimeZone timeZone = TimeZone.getTimeZone("Asia/Calcutta");
             yearForm.setTimeZone(timeZone);
             monthForm.setTimeZone(timeZone);

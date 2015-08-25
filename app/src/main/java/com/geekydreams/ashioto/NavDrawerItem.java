@@ -1,9 +1,9 @@
 package com.geekydreams.ashioto;
 
 /**
- * Created by geek on 24/6/15.
+ * Created by geek on 24/6/15 for AshiotoRepo.
  */
-public class NavDrawerItem {
+class NavDrawerItem {
     private boolean showNotify;
     private String title;
 

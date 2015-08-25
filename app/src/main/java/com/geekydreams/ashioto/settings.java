@@ -1,6 +1,5 @@
 package com.geekydreams.ashioto;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.location.Criteria;
@@ -10,72 +9,61 @@ import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Looper;
-import android.support.v4.view.ViewCompat;
-import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.CardView;
 import android.support.v7.widget.Toolbar;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.util.Log;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.NumberPicker;
-import android.widget.SeekBar;
 import android.widget.Toast;
 
-import com.snappydb.DBFactory;
 import com.snappydb.SnappydbException;
-
-import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
 
 
 public class settings extends AppCompatActivity implements LocationListener {
-    //Views
-    public SeekBar seek;
-    public EditText normal;
-    public EditText warn;
-    public EditText over;
-    public EditText areaView;
-    public NumberPicker numPick;
-    public Button saveBut;
-    //Strings
-    public String areaPref = "areaPref";
+    private final View.OnClickListener getGPS = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            gpsTask getGPSTask = new gpsTask();
+            getGPSTask.execute();
+        }
+    };
     public String settingPref = "settings";
-    String areaString;
     String savedBefore;
-    //Ints and floats
-    Float areaFloat;
-    int normInt;
-    int warnInt;
-    int overInt;
-    int gateInt;
-    boolean loop = true;
     //Prefs
     SharedPreferences settingsPrefs;
-    SharedPreferences.Editor settingsEditor;
-    @Bind(R.id.gpsButton) Button gpsButton;
-
-    LocationManager locationManager;
-    String provider;
+    @Bind(R.id.gpsButton)
+    Button gpsButton;
+    //Views
+    private NumberPicker numPick;
+    private boolean loop = true;
+    private SharedPreferences.Editor settingsEditor;
+    private final View.OnClickListener save = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            int gateInt = numPick.getValue();
+            settingsEditor.putInt("gateID", gateInt).apply();
+            try {
+                Start.localDB.putInt("gateID", gateInt);
+            } catch (SnappydbException e) {
+                e.printStackTrace();
+            }
+        }
+    };
+    private LocationManager locationManager;
+    private String provider;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings);
         ButterKnife.bind(this);
-        SharedPreferences area = getSharedPreferences(areaPref, 0);
-        final SharedPreferences.Editor prefsEditor = area.edit();
 
-        locationManager = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
+        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 
         Criteria criteria = new Criteria();
         criteria.setAccuracy(Criteria.ACCURACY_FINE);
@@ -90,29 +78,13 @@ public class settings extends AppCompatActivity implements LocationListener {
         criteria.setSpeedAccuracy(Criteria.ACCURACY_MEDIUM);
         provider = locationManager.getBestProvider(criteria, true);
 
-        CardView normCard = (CardView) findViewById(R.id.cardNorm);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolset);
-        ViewCompat.setElevation(toolbar, 16);
         setSupportActionBar(toolbar);
-        ViewCompat.setElevation(normCard, 16);
 
-        saveBut = (Button) findViewById(R.id.saveBut);
+        Button saveBut = (Button) findViewById(R.id.saveBut);
         numPick = (NumberPicker) findViewById(R.id.numPick);
         numPick.setMinValue(1);
         numPick.setMaxValue(10);
-        seek = (SeekBar) findViewById(R.id.seekBar);
-        normal = (EditText) findViewById(R.id.textView3);
-        warn = (EditText) findViewById(R.id.editText);
-        over = (EditText) findViewById(R.id.editText2);
-        areaView = (EditText) findViewById(R.id.areaVal);
-
-        settingsPrefs = getSharedPreferences(settingPref, 0);
-        settingsEditor = settingsPrefs.edit();
-        SharedPreferences getArea = getSharedPreferences(areaPref, 0);
-        float areaF = getArea.getFloat(areaPref, 0);
-        savedBefore = String.valueOf(areaF);
-
-        areaView.setText(savedBefore);
 
         saveBut.setOnClickListener(save);
 
@@ -124,28 +96,9 @@ public class settings extends AppCompatActivity implements LocationListener {
             areaView.setText(savedAreaString);*/
         Log.d("TEST", "savedArea Success");
         //Processes
-        areaView.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-                areaString = areaView.getText().toString();
-                areaFloat = Float.parseFloat(areaString);
-                prefsEditor.putFloat(areaPref, areaFloat).apply();
-            }
-        });
 
         gpsButton.setOnClickListener(getGPS);
     }
-
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -155,30 +108,6 @@ public class settings extends AppCompatActivity implements LocationListener {
         int id = item.getItemId();
         return id == R.id.action_settings || super.onOptionsItemSelected(item);
     }
-    View.OnClickListener save = new View.OnClickListener() {
-        @Override
-        public void onClick(View v) {
-            gateInt = numPick.getValue();
-            settingsEditor.putInt("gateID", gateInt).apply();
-            areaString = areaView.getText().toString();
-            areaFloat = Float.parseFloat(areaString);
-            settingsEditor.putFloat(areaPref, areaFloat).apply();
-            try {
-                Start.localDB.putInt("gateID", gateInt);
-                Start.localDB.putFloat(areaPref, areaFloat);
-            } catch (SnappydbException e) {
-                e.printStackTrace();
-            }
-        }
-    };
-
-    View.OnClickListener getGPS = new View.OnClickListener() {
-        @Override
-        public void onClick(View v) {
-            gpsTask getGPSTask = new gpsTask();
-            getGPSTask.execute();
-            }
-    };
 
     @Override
     public void onLocationChanged(Location location) {
