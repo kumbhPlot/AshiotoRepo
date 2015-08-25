@@ -1,7 +1,3 @@
-# AshiotoRepo
-Created For Project Ashioto.
-Credits: 
-Nilay Kulkarni
-Parikshit Jadhav
-Viraj Ranade
-Hiren Panjwani
+#Branch Definition :
+##Dev :
+Most unstable branch with code neither tried nor tested anywhere. Optimized code from unstable branch.
